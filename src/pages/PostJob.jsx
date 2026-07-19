@@ -13,6 +13,7 @@ const PostJob = () => {
     description: '',
     budget: '',
     deadline: ''
+  });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
