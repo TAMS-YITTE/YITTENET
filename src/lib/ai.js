@@ -91,7 +91,7 @@ Bubble ou Glide, Make/Integromat, SendGrid/Twilio
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': \`Bearer \${apiKey}\`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: 'gpt-4o', // ou gpt-3.5-turbo
