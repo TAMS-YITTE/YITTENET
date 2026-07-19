@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { generateJobBrief } from '../lib/ai';
+import { Wand2 } from 'lucide-react';
 
 const PostJob = () => {
   const [searchParams] = useSearchParams();
@@ -16,6 +18,8 @@ const PostJob = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [generatingAi, setGeneratingAi] = useState(false);
 
   const { user, profile } = useAuth();
 
@@ -69,10 +73,54 @@ const PostJob = () => {
     setFormData({...formData, [e.target.name]: e.target.value});
   };
 
+  const handleGenerateAi = async () => {
+    if (!aiPrompt.trim()) return;
+    setGeneratingAi(true);
+    try {
+      const generatedBrief = await generateJobBrief(aiPrompt);
+      setFormData(prev => ({
+        ...prev,
+        description: generatedBrief
+      }));
+    } catch (err) {
+      setErrorMsg("L'assistant IA a rencontré une erreur. Veuillez réessayer.");
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
+
   return (
     <div className="container" style={{ padding: '4rem 0', maxWidth: '800px' }}>
       <h1 style={{ marginBottom: '2rem' }}>Publier un besoin</h1>
       
+      {/* AI Assistant Block */}
+      <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.05)', border: '1px solid var(--primary)', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem' }}>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', marginBottom: '1rem' }}>
+          <Wand2 size={20} /> Assistant IA de Rédaction
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+          Vous ne savez pas comment rédiger votre cahier des charges ? Décrivez simplement votre idée en une phrase et notre IA fera le reste.
+        </p>
+        <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+          <textarea 
+            className="form-input" 
+            placeholder="Ex: Je veux créer une marketplace de location de matériel avec paiement crypto..." 
+            rows="2"
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+          ></textarea>
+          <button 
+            type="button" 
+            onClick={handleGenerateAi}
+            className="btn btn-outline" 
+            style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            disabled={generatingAi || !aiPrompt.trim()}
+          >
+            {generatingAi ? 'Génération en cours...' : 'Générer le cahier des charges'}
+          </button>
+        </div>
+      </div>
+
       {errorMsg && (
         <div style={{ padding: '1rem', backgroundColor: 'rgba(233, 64, 87, 0.1)', color: 'var(--domain-genai-color)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(233, 64, 87, 0.2)' }}>
           {errorMsg}
