@@ -25,8 +25,10 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         {/* Logo */}
-        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '900', fontSize: '1.8rem', letterSpacing: '-1px' }}>Y@</span>
+        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '1.4rem' }}>
+            Y
+          </div>
           <span style={{ letterSpacing: '1px' }}>YITTE</span>
         </Link>
 
