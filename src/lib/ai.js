@@ -45,10 +45,10 @@ FORMAT DE SORTIE ATTENDU :
 `;
 
 export const generateJobBrief = async (clientInput) => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  const apiKey = import.meta.env.VITE_AI_API_KEY;
 
   // Si la clé n'est pas encore configurée, on renvoie un mock pour démontrer la fonctionnalité
-  if (!apiKey || apiKey === 'your_openai_api_key_here') {
+  if (!apiKey || apiKey === 'your_ai_api_key_here') {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(`**⚠️ Brouillon généré automatiquement — à relire et ajuster avant publication**
@@ -85,16 +85,16 @@ Bubble ou Glide, Make/Integromat, SendGrid/Twilio
     });
   }
 
-  // Si la clé est présente, on fait le vrai call API OpenAI
+  // Si la clé est présente, on fait le vrai call API vers DeepSeek
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // ou gpt-3.5-turbo
+        model: 'deepseek-chat', 
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: clientInput }
@@ -104,7 +104,7 @@ Bubble ou Glide, Make/Integromat, SendGrid/Twilio
     });
 
     if (!response.ok) {
-      throw new Error("Erreur lors de l'appel à l'API OpenAI");
+      throw new Error("Erreur lors de l'appel à l'API DeepSeek");
     }
 
     const data = await response.json();
