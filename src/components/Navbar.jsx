@@ -25,9 +25,9 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         {/* Logo */}
-        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-          <img src="/logo.png" alt="YITTE Logo" style={{ height: '36px', borderRadius: '4px' }} />
-          YITTE
+        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
+          <span style={{ color: 'var(--primary)', fontWeight: '900', fontSize: '1.8rem', letterSpacing: '-1px' }}>Y@</span>
+          <span style={{ letterSpacing: '1px' }}>YITTE</span>
         </Link>
 
         {/* Links */}
