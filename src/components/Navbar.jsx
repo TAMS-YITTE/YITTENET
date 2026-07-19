@@ -25,20 +25,9 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, var(--primary), var(--domain-web3))',
-            borderRadius: '8px',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '1.2rem'
-          }}>Y</div>
-          <span style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '1px' }}>YITTE</span>
+        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+          <img src="/logo.png" alt="YITTE Logo" style={{ height: '36px', borderRadius: '4px' }} />
+          YITTE
         </Link>
 
         {/* Links */}
