@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const PostJob = () => {
   const [searchParams] = useSearchParams();
@@ -11,7 +13,10 @@ const PostJob = () => {
     description: '',
     budget: '',
     deadline: ''
-  });
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const { user, profile } = useAuth();
 
   useEffect(() => {
     const domain = searchParams.get('domain');
@@ -26,11 +31,37 @@ const PostJob = () => {
     }
   }, [searchParams]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate submission and redirect to escrow payment
-    const mockJobId = 'job-' + Math.random().toString(36).substr(2, 9);
-    navigate(`/checkout/${mockJobId}?amount=${formData.budget}`);
+    if (!user || profile?.role !== 'client') {
+      setErrorMsg("Vous devez être connecté en tant que Client pour publier un besoin.");
+      setTimeout(() => navigate('/signup'), 3000);
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const { data, error } = await supabase.from('jobs').insert({
+        client_id: user.id,
+        title: formData.title,
+        domain: formData.domain,
+        description: formData.description,
+        budget: parseInt(formData.budget, 10),
+        deadline: formData.deadline,
+        status: 'open'
+      }).select().single();
+
+      if (error) throw error;
+
+      // Redirect to Escrow payment simulation
+      navigate(`/checkout/${data.id}?amount=${formData.budget}`);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -41,6 +72,12 @@ const PostJob = () => {
     <div className="container" style={{ padding: '4rem 0', maxWidth: '800px' }}>
       <h1 style={{ marginBottom: '2rem' }}>Publier un besoin</h1>
       
+      {errorMsg && (
+        <div style={{ padding: '1rem', backgroundColor: 'rgba(233, 64, 87, 0.1)', color: 'var(--domain-genai-color)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(233, 64, 87, 0.2)' }}>
+          {errorMsg}
+        </div>
+      )}
+
       <div className="card">
         <form onSubmit={handleSubmit}>
           
@@ -111,8 +148,8 @@ const PostJob = () => {
             </p>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }}>
-            Publier la mission
+          <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }} disabled={loading}>
+            {loading ? 'Publication en cours...' : 'Publier la mission'}
           </button>
         </form>
       </div>

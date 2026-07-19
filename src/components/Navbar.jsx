@@ -1,8 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShieldCheck, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, LogOut, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
   return (
     <nav style={{
       position: 'fixed',
@@ -44,8 +52,24 @@ const Navbar = () => {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <Link to="/signup" className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>Connexion</Link>
-          <Link to="/post-job" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Publier un besoin</Link>
+          {user ? (
+            <>
+              {profile?.role === 'client' && (
+                <Link to="/post-job" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Publier un besoin</Link>
+              )}
+              <Link to="/dashboard" className="btn btn-outline" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <LayoutDashboard size={18} /> Tableau de bord
+              </Link>
+              <button onClick={handleLogout} className="btn" style={{ padding: '0.5rem', color: 'var(--text-muted)' }} title="Déconnexion">
+                <LogOut size={18} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/signup" className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>Connexion</Link>
+              <Link to="/post-job" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Publier un besoin</Link>
+            </>
+          )}
         </div>
 
       </div>
