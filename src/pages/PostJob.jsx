@@ -20,6 +20,8 @@ const PostJob = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [aiMetadata, setAiMetadata] = useState(null);
+  const [clientApproved, setClientApproved] = useState(false);
 
   const { user, profile } = useAuth();
 
@@ -76,12 +78,15 @@ const PostJob = () => {
   const handleGenerateAi = async () => {
     if (!aiPrompt.trim()) return;
     setGeneratingAi(true);
+    setAiMetadata(null);
+    setClientApproved(false);
     try {
-      const generatedBrief = await generateJobBrief(aiPrompt);
+      const generatedData = await generateJobBrief(aiPrompt);
       setFormData(prev => ({
         ...prev,
-        description: generatedBrief
+        description: generatedData.brief
       }));
+      setAiMetadata(generatedData.metadata);
     } catch (err) {
       setErrorMsg("L'assistant IA a rencontré une erreur. Veuillez réessayer.");
     } finally {
@@ -120,6 +125,32 @@ const PostJob = () => {
           </button>
         </div>
       </div>
+
+      {aiMetadata && aiMetadata.incoherence_detected && (
+        <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #F87171', color: '#B91C1C', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+          <strong>⚠️ Attention :</strong> L'IA a détecté une incohérence potentielle dans votre brief (ex: budget insuffisant). Veuillez vérifier la section "Points d'attention" ci-dessous.
+        </div>
+      )}
+
+      {aiMetadata && aiMetadata.needs_client_review && (
+        <div style={{ backgroundColor: '#F0FDF4', border: '1px solid #4ADE80', color: '#166534', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          <h4 style={{ marginBottom: '0.5rem', color: '#166534' }}>✅ Validation requise avant publication</h4>
+          <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>
+            {aiMetadata.review_points && aiMetadata.review_points.map((point, i) => (
+              <li key={i}>{point}</li>
+            ))}
+          </ul>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 'bold' }}>
+            <input 
+              type="checkbox" 
+              checked={clientApproved} 
+              onChange={(e) => setClientApproved(e.target.checked)} 
+              style={{ width: '18px', height: '18px', accentColor: '#166534' }}
+            />
+            J'ai relu le cahier des charges généré par l'IA et j'approuve son contenu.
+          </label>
+        </div>
+      )}
 
       {errorMsg && (
         <div style={{ padding: '1rem', backgroundColor: 'rgba(233, 64, 87, 0.1)', color: 'var(--domain-genai-color)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(233, 64, 87, 0.2)' }}>
@@ -197,7 +228,7 @@ const PostJob = () => {
             </p>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }} disabled={loading}>
+          <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }} disabled={loading || (aiMetadata?.needs_client_review && !clientApproved)}>
             {loading ? 'Publication en cours...' : 'Publier la mission'}
           </button>
         </form>
