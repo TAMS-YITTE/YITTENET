@@ -49,7 +49,7 @@ const CheckoutEscrow = () => {
         
         {/* Payment Form */}
         <div className="card">
-          <h3 style={{ marginBottom: '1.5rem', color: 'white' }}>Moyen de paiement</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)' }}>Moyen de paiement</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
               <label className="form-label">Numéro de carte</label>
@@ -80,21 +80,21 @@ const CheckoutEscrow = () => {
 
         {/* Order Summary */}
         <div className="card" style={{ height: 'fit-content' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'white' }}>Résumé</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-main)' }}>Résumé</h3>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <span style={{ color: 'var(--text-muted)' }}>Montant devis</span>
-            <span style={{ color: 'white' }}>{baseAmount} €</span>
+            <span style={{ color: 'var(--text-main)' }}>{baseAmount} €</span>
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
             <span style={{ color: 'var(--text-muted)' }}>Garantie Séquestre (3%)</span>
-            <span style={{ color: 'white' }}>{escrowFee} €</span>
+            <span style={{ color: 'var(--text-main)' }}>{escrowFee} €</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-            <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'white' }}>Total à régler</span>
-            <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'white' }}>{totalAmount} €</span>
+            <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--text-main)' }}>Total à régler</span>
+            <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--text-main)' }}>{totalAmount} €</span>
           </div>
 
           <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)' }}>

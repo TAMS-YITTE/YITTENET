@@ -16,7 +16,7 @@ const Navbar = () => {
       position: 'fixed',
       top: 0,
       width: '100%',
-      backgroundColor: 'rgba(11, 14, 20, 0.8)',
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
       backdropFilter: 'blur(10px)',
       borderBottom: '1px solid var(--border-color)',
       zIndex: 50,
@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         {/* Logo */}
-        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <img src="/logo.png" alt="YITTE Logo" style={{ height: '36px', borderRadius: '4px' }} />
           YITTE
         </Link>

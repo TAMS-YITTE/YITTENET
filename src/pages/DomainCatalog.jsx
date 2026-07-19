@@ -97,7 +97,7 @@ const DomainCatalog = () => {
                   {job.icon}
                 </div>
                 
-                <h3 style={{ fontSize: '1.25rem', color: 'white' }}>{job.title}</h3>
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--text-main)' }}>{job.title}</h3>
                 <p style={{ marginBottom: '1.5rem', flex: 1 }}>{job.desc}</p>
                 
                 <Link to={`/post-job?domain=${id}&jobTitle=${encodeURIComponent(job.title)}`} className="btn" style={{ backgroundColor: domain.color, color: (id === 'web3' || id === 'nocode') ? '#000' : '#fff', width: '100%' }}>

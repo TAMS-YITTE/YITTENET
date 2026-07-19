@@ -62,15 +62,15 @@ const Dashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
         <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
           <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Missions en cours</p>
-          <h2 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>{activeJobs.length}</h2>
+          <h2 style={{ fontSize: '2.5rem', color: 'var(--text-main)', margin: 0 }}>{activeJobs.length}</h2>
         </div>
         <div className="card" style={{ borderTop: '4px solid var(--status-pending)' }}>
           <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{profile?.role === 'client' ? 'Engagé en séquestre' : 'Gains en attente'}</p>
-          <h2 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>{totalEscrow} €</h2>
+          <h2 style={{ fontSize: '2.5rem', color: 'var(--text-main)', margin: 0 }}>{totalEscrow} €</h2>
         </div>
         <div className="card" style={{ borderTop: '4px solid var(--status-success)' }}>
           <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Missions terminées</p>
-          <h2 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>{completedJobs.length}</h2>
+          <h2 style={{ fontSize: '2.5rem', color: 'var(--text-main)', margin: 0 }}>{completedJobs.length}</h2>
         </div>
       </div>
 
@@ -90,7 +90,7 @@ const Dashboard = () => {
           {jobs.map(job => (
             <div key={job.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>{job.title}</h3>
+                <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <span className={`badge badge-${job.domain}`}>{job.domain.toUpperCase()}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
@@ -101,7 +101,7 @@ const Dashboard = () => {
               <div style={{ textAlign: 'right', minWidth: '250px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Budget / Séquestre</span>
-                  <span style={{ fontWeight: 'bold', color: 'white' }}>{job.budget} €</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</span>
                 </div>
                 
                 {job.status === 'open' && (

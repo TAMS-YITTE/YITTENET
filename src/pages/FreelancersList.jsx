@@ -84,7 +84,7 @@ const FreelancersList = () => {
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
               <img src={freelancer.avatar} alt={freelancer.name} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
               <div>
-                <h3 style={{ color: 'white', fontSize: '1.25rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h3 style={{ color: 'var(--text-main)', fontSize: '1.25rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {freelancer.name}
                   {freelancer.verified && <ShieldCheck size={18} color="var(--primary)" />}
                 </h3>
@@ -104,7 +104,7 @@ const FreelancersList = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-              <span style={{ fontWeight: 'bold', color: 'white' }}>{freelancer.rate}</span>
+              <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{freelancer.rate}</span>
               <span className={`badge badge-${freelancer.domain}`}>{freelancer.domain === 'genai' ? 'IA' : freelancer.domain.toUpperCase()}</span>
             </div>
           </Link>

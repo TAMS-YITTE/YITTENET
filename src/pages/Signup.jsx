@@ -165,7 +165,7 @@ const Signup = () => {
 
           {!isLogin && role === 'freelancer' && (
             <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'rgba(59,130,246,0.05)', borderRadius: '12px', border: '1px dashed var(--primary)' }}>
-              <h4 style={{ marginBottom: '1rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 Onboarding Rapide 🚀
               </h4>
               <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
@@ -176,7 +176,7 @@ const Signup = () => {
                 {file ? (
                   <>
                     <FileCheck size={40} color="var(--status-success)" />
-                    <span style={{ color: 'white' }}>{file.name} ajouté !</span>
+                    <span style={{ color: 'var(--text-main)' }}>{file.name} ajouté !</span>
                   </>
                 ) : (
                   <>

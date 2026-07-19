@@ -2,25 +2,25 @@
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   
-  /* Colors - Base (Dark Theme) */
-  --bg-color: #0B0E14;
-  --bg-card: #151A23;
-  --bg-card-hover: #1C222E;
-  --text-main: #F3F4F6;
-  --text-muted: #9CA3AF;
-  --border-color: #2D3748;
+  /* Colors - Base (Light Theme) */
+  --bg-color: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border-color: #E2E8F0;
   
   /* Colors - Primary (Trust/Brand) */
   --primary: #3B82F6;
   --primary-hover: #2563EB;
   
   /* Colors - Domains */
-  --domain-web3: #00F0FF;
-  --domain-web3-bg: rgba(0, 240, 255, 0.1);
-  --domain-genai: #E94057;
-  --domain-genai-bg: rgba(233, 64, 87, 0.1);
-  --domain-nocode: #10B981;
-  --domain-nocode-bg: rgba(16, 185, 129, 0.1);
+  --domain-web3: #0284C7;
+  --domain-web3-bg: #E0F2FE;
+  --domain-genai: #E11D48;
+  --domain-genai-bg: #FFE4E6;
+  --domain-nocode: #059669;
+  --domain-nocode-bg: #D1FAE5;
 
   /* Escrow / Status */
   --status-pending: #F59E0B;
@@ -28,9 +28,9 @@
 
   /* Layout */
   --container-width: 1200px;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --transition: all 0.3s ease;
 }
 
@@ -68,7 +68,7 @@ button {
 h1, h2, h3, h4 {
   font-weight: 600;
   line-height: 1.2;
-  color: #FFFFFF;
+  color: var(--text-main);
 }
 
 h1 { font-size: 3rem; margin-bottom: 1rem; }
@@ -122,12 +122,13 @@ p { color: var(--text-muted); }
   border-radius: var(--radius-md);
   padding: 1.5rem;
   transition: var(--transition);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .card:hover {
   border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0,0,0, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Badges */

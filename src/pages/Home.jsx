@@ -101,21 +101,21 @@ const Home = () => {
               <li style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 <div style={{ backgroundColor: 'rgba(59,130,246,0.1)', padding: '0.75rem', borderRadius: '12px', color: 'var(--primary)' }}><CreditCard size={24} /></div>
                 <div>
-                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'white' }}>1. Dépôt initial</h4>
+                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'var(--text-main)' }}>1. Dépôt initial</h4>
                   <p style={{ fontSize: '0.95rem' }}>Le client valide le devis et dépose les fonds sur un compte séquestre sécurisé.</p>
                 </div>
               </li>
               <li style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 <div style={{ backgroundColor: 'rgba(245,158,11,0.1)', padding: '0.75rem', borderRadius: '12px', color: 'var(--status-pending)' }}><Lock size={24} /></div>
                 <div>
-                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'white' }}>2. Fonds bloqués</h4>
+                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'var(--text-main)' }}>2. Fonds bloqués</h4>
                   <p style={{ fontSize: '0.95rem' }}>Le prestataire travaille l'esprit tranquille, sachant que l'argent est déjà provisionné.</p>
                 </div>
               </li>
               <li style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', padding: '0.75rem', borderRadius: '12px', color: 'var(--status-success)' }}><FileCheck size={24} /></div>
                 <div>
-                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'white' }}>3. Paiement libéré</h4>
+                  <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'var(--text-main)' }}>3. Paiement libéré</h4>
                   <p style={{ fontSize: '0.95rem' }}>Une fois le travail livré et validé par le client, les fonds sont automatiquement transférés au prestataire.</p>
                 </div>
               </li>
@@ -125,13 +125,13 @@ const Home = () => {
           <div style={{ flex: '1 1 400px', backgroundColor: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border-color)', position: 'relative' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
               <ShieldCheck size={64} style={{ color: 'var(--status-success)', margin: '0 auto 1rem' }} />
-              <h3 style={{ color: 'white' }}>Statut de la transaction</h3>
+              <h3 style={{ color: 'var(--text-main)' }}>Statut de la transaction</h3>
             </div>
             
             <div style={{ backgroundColor: 'var(--bg-color)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Montant bloqué</span>
-                <span style={{ fontWeight: 'bold', color: 'white' }}>2,500 €</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>2,500 €</span>
               </div>
               <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden', marginBottom: '1rem' }}>
                 <div style={{ width: '66%', height: '100%', backgroundColor: 'var(--status-pending)' }}></div>

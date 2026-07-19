@@ -34,12 +34,12 @@ const Profile = () => {
         {/* Main Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div className="card">
-            <h3 style={{ color: 'white', marginBottom: '1rem' }}>À propos</h3>
+            <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>À propos</h3>
             <p>Spécialisé dans le développement Solidity et l'architecture de dApps. J'ai réalisé plus de 20 projets DeFi et NFT sur Ethereum et Polygon. Sécurité et optimisation du gaz sont mes priorités absolues.</p>
           </div>
           
           <div className="card">
-            <h3 style={{ color: 'white', marginBottom: '1rem' }}>Compétences</h3>
+            <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Compétences</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {['Solidity', 'Hardhat', 'Ethers.js', 'React', 'The Graph', 'Audit Sécurité'].map(skill => (
                 <span key={skill} className="badge" style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', color: 'var(--text-main)' }}>{skill}</span>
@@ -48,11 +48,11 @@ const Profile = () => {
           </div>
 
           <div className="card">
-            <h3 style={{ color: 'white', marginBottom: '1rem' }}>Avis récents</h3>
+            <h3 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Avis récents</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <strong style={{ color: 'white' }}>Création Smart Contract Staking</strong>
+                  <strong style={{ color: 'var(--text-main)' }}>Création Smart Contract Staking</strong>
                   <span style={{ color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Star size={14} fill="#F59E0B" /> 5.0</span>
                 </div>
                 <p style={{ fontSize: '0.9rem' }}>"Travail impeccable, contrat sécurisé et livré en avance. Le système de séquestre a rendu la transaction très rassurante."</p>
@@ -64,7 +64,7 @@ const Profile = () => {
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div className="card">
-            <h3 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.2rem' }}>Documents & CV</h3>
+            <h3 style={{ color: 'var(--text-main)', marginBottom: '1.5rem', fontSize: '1.2rem' }}>Documents & CV</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <a href="#" className="btn btn-outline" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FileCheck size={18} /> CV_Alexandre.pdf</span>

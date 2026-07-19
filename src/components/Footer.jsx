@@ -20,7 +20,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 style={{ marginBottom: '1rem', color: 'white' }}>Domaines</h4>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Domaines</h4>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li><Link to="/domain/web3" style={{ color: 'var(--text-muted)' }}>Web3 & Blockchain</Link></li>
             <li><Link to="/domain/genai" style={{ color: 'var(--text-muted)' }}>IA Générative</Link></li>
@@ -29,7 +29,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 style={{ marginBottom: '1rem', color: 'white' }}>Plateforme</h4>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Plateforme</h4>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li><Link to="/jobs" style={{ color: 'var(--text-muted)' }}>Trouver une mission</Link></li>
             <li><Link to="/freelancers" style={{ color: 'var(--text-muted)' }}>Rechercher un prestataire</Link></li>

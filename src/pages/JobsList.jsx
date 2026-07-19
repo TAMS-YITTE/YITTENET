@@ -63,7 +63,7 @@ const JobsList = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '3rem' }}>
         {/* Sidebar Filters */}
         <div className="card" style={{ height: 'fit-content' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', color: 'white', fontWeight: 'bold' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', color: 'var(--text-main)', fontWeight: 'bold' }}>
             <Filter size={18} /> Filtres
           </div>
           
@@ -102,11 +102,11 @@ const JobsList = () => {
             <div key={job.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>{job.title}</h3>
+                  <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
                   <span className={`badge badge-${job.domain}`}>{job.domain === 'genai' ? 'IA Générative' : job.domain.toUpperCase()}</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white' }}>{job.budget} €</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Budget fixe</div>
                 </div>
               </div>
