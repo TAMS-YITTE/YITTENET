@@ -1,73 +1,116 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Filter, Clock, MapPin, X, CheckCircle2 } from 'lucide-react';
-
-const mockJobs = [
-  {
-    id: '1',
-    title: 'Création d\'un Smart Contract de Staking',
-    domain: 'web3',
-    budget: 2500,
-    deadline: '2024-11-15',
-    description: 'Nous cherchons un dev Solidity expérimenté pour créer un contrat de staking ERC20 sécurisé et optimisé en gaz.',
-    client: 'DeFi Startup',
-    postedAt: 'Il y a 2h'
-  },
-  {
-    id: '2',
-    title: 'Intégration RAG sur documentation interne',
-    domain: 'genai',
-    budget: 3500,
-    deadline: '2024-12-01',
-    description: 'Besoin de mettre en place un pipeline RAG avec OpenAI pour interroger notre base de connaissances Notion.',
-    client: 'Tech Agency',
-    postedAt: 'Il y a 5h'
-  },
-  {
-    id: '3',
-    title: 'Site vitrine Webflow pour Cabinet d\'avocats',
-    domain: 'nocode',
-    budget: 1200,
-    deadline: '2024-10-30',
-    description: 'Refonte complète de notre site avec Webflow, design fourni sur Figma. Besoin d\'animations fluides.',
-    client: 'Cabinet Dupont',
-    postedAt: 'Il y a 1 jour'
-  },
-  {
-    id: '4',
-    title: 'Audit de sécurité d\'une Marketplace NFT',
-    domain: 'web3',
-    budget: 4000,
-    deadline: '2024-11-05',
-    description: 'Audit complet de nos contrats Seaport modifiés avant lancement sur le mainnet Ethereum.',
-    client: 'NFT Collect',
-    postedAt: 'Il y a 2 jours'
-  }
-];
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 const JobsList = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selectedJob, setSelectedJob] = useState(null);
+  
+  // Array to keep track of jobs the user has already applied to
   const [appliedJobIds, setAppliedJobIds] = useState([]);
+  
   const [proposal, setProposal] = useState({ price: '', duration: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const filteredJobs = filter === 'all' ? mockJobs : mockJobs.filter(j => j.domain === filter);
+  useEffect(() => {
+    fetchJobs();
+    if (user && profile?.role === 'freelancer') {
+      fetchUserProposals();
+    }
+  }, [user, profile]);
 
-  const handleOpenProposal = (job) => {
-    setSelectedJob(job);
-    setProposal({ price: job.budget, duration: '', message: '' });
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select(`
+          *,
+          profiles!jobs_client_id_fkey(full_name)
+        `)
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (err) {
+      console.error("Erreur récupération missions:", err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmitProposal = (e) => {
+  const fetchUserProposals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('job_id')
+        .eq('freelancer_id', user.id);
+        
+      if (!error && data) {
+        setAppliedJobIds(data.map(p => p.job_id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredJobs = filter === 'all' ? jobs : jobs.filter(j => j.domain === filter);
+
+  const handleOpenProposal = (job) => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    if (profile?.role !== 'freelancer') {
+      alert("Vous devez être connecté avec un compte Freelance pour faire une proposition.");
+      return;
+    }
+    setSelectedJob(job);
+    setProposal({ price: job.budget, duration: '', message: '' });
+    setErrorMsg('');
+  };
+
+  const handleSubmitProposal = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    setErrorMsg('');
+    
+    try {
+      const { error } = await supabase.from('proposals').insert({
+        job_id: selectedJob.id,
+        freelancer_id: user.id,
+        amount: proposal.price,
+        message: `Délai estimé: ${proposal.duration}\n\n${proposal.message}`
+      });
+
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error("Vous avez déjà fait une proposition pour cette mission.");
+        }
+        throw error;
+      }
+
       setAppliedJobIds(prev => [...prev, selectedJob.id]);
-      setIsSubmitting(false);
       setSelectedJob(null);
-    }, 1000);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
   return (
@@ -77,7 +120,9 @@ const JobsList = () => {
           <h1 style={{ marginBottom: '0.5rem' }}>Trouver une mission</h1>
           <p style={{ color: 'var(--text-muted)' }}>Découvrez les derniers besoins publiés et proposez vos services.</p>
         </div>
-        <Link to="/post-job" className="btn btn-outline">Publier un besoin</Link>
+        {profile?.role !== 'freelancer' && (
+          <Link to="/post-job" className="btn btn-outline">Publier un besoin</Link>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '3rem' }}>
@@ -118,41 +163,47 @@ const JobsList = () => {
             <button className="btn btn-primary">Rechercher</button>
           </div>
 
-          {filteredJobs.map(job => (
-            <div key={job.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
-                  <span className={`badge badge-${job.domain}`}>{job.domain === 'genai' ? 'IA Générative' : job.domain.toUpperCase()}</span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Budget fixe</div>
-                </div>
-              </div>
-              
-              <p>{job.description}</p>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={14} /> Publié {job.postedAt}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><MapPin size={14} /> Par {job.client}</span>
-                </div>
-                {appliedJobIds.includes(job.id) ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontWeight: 'bold' }}>
-                    <CheckCircle2 size={18} /> Proposition envoyée
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Chargement des missions...</div>
+          ) : (
+            <>
+              {filteredJobs.map(job => (
+                <div key={job.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
+                      <span className={`badge badge-${job.domain}`}>{job.domain === 'genai' ? 'IA Générative' : job.domain.toUpperCase()}</span>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Budget fixe</div>
+                    </div>
                   </div>
-                ) : (
-                  <button onClick={() => handleOpenProposal(job)} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Faire une proposition</button>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          {filteredJobs.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', backgroundColor: 'var(--bg-card)', borderRadius: '12px' }}>
-              Aucune mission trouvée pour ce domaine actuellement.
-            </div>
+                  
+                  <p style={{ whiteSpace: 'pre-wrap', color: 'var(--text-muted)' }}>{job.description}</p>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={14} /> Publié le {formatDate(job.created_at)}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><MapPin size={14} /> Par {job.profiles?.full_name || 'Client Anonyme'}</span>
+                    </div>
+                    {appliedJobIds.includes(job.id) ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontWeight: 'bold' }}>
+                        <CheckCircle2 size={18} /> Proposition envoyée
+                      </div>
+                    ) : (
+                      <button onClick={() => handleOpenProposal(job)} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Faire une proposition</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              {filteredJobs.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', backgroundColor: 'var(--bg-card)', borderRadius: '12px' }}>
+                  Aucune mission trouvée pour ce domaine actuellement.
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -172,6 +223,12 @@ const JobsList = () => {
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               Mission : <strong>{selectedJob.title}</strong>
             </p>
+
+            {errorMsg && (
+              <div style={{ color: 'red', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#FEF2F2', borderRadius: '4px' }}>
+                {errorMsg}
+              </div>
+            )}
 
             <form onSubmit={handleSubmitProposal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>

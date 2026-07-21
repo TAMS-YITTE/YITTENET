@@ -34,7 +34,13 @@ const Dashboard = () => {
       if (profile.role === 'client') {
         const { data, error } = await supabase
           .from('jobs')
-          .select('*')
+          .select(`
+            *,
+            proposals (
+              *,
+              profiles!proposals_freelancer_id_fkey(full_name)
+            )
+          `)
           .eq('client_id', user.id)
           .order('created_at', { ascending: false });
           
@@ -118,38 +124,65 @@ const Dashboard = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {jobs.map(job => (
-            <div key={job.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <span className={`badge badge-${job.domain}`}>{job.domain.toUpperCase()}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    <Clock size={14} /> Deadline: {job.deadline}
-                  </span>
+            <div key={job.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>{job.title}</h3>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <span className={`badge badge-${job.domain}`}>{job.domain.toUpperCase()}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      <Clock size={14} /> Deadline: {job.deadline}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', minWidth: '250px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Budget / Séquestre</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</span>
+                  </div>
+                  
+                  {job.status === 'open' && (
+                    <div style={{ backgroundColor: 'rgba(59,130,246,0.1)', color: 'var(--primary)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      Recherche de prestataire... ({job.proposals?.length || 0} devis)
+                    </div>
+                  )}
+                  {job.status === 'in_progress' && (
+                    <div style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: 'var(--status-pending)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(245,158,11,0.2)' }}>
+                      <Lock size={16} /> Fonds sécurisés (En cours)
+                    </div>
+                  )}
+                  {job.status === 'completed' && (
+                    <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--status-success)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <CheckCircle2 size={16} /> Livré - Fonds libérés
+                    </div>
+                  )}
                 </div>
               </div>
-              <div style={{ textAlign: 'right', minWidth: '250px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Budget / Séquestre</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{job.budget} €</span>
-                </div>
-                
-                {job.status === 'open' && (
-                  <div style={{ backgroundColor: 'rgba(59,130,246,0.1)', color: 'var(--primary)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(59,130,246,0.2)' }}>
-                    Recherche de prestataire...
+            
+            {/* Affichage des devis pour le client */}
+            {profile?.role === 'client' && job.status === 'open' && job.proposals && job.proposals.length > 0 && (
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h4 style={{ fontSize: '1rem', margin: 0, color: 'var(--text-main)' }}>Devis reçus ({job.proposals.length})</h4>
+                {job.proposals.map(prop => (
+                  <div key={prop.id} style={{ backgroundColor: 'var(--bg-main)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div style={{ fontWeight: 'bold' }}>{prop.profiles?.full_name || 'Freelance Anonyme'}</div>
+                      <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{prop.amount} €</div>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
+                      {prop.message}
+                    </p>
+                    <button 
+                      onClick={() => navigate('/checkout')}
+                      className="btn btn-primary" 
+                      style={{ width: '100%' }}
+                    >
+                      Accepter et Payer (Séquestre)
+                    </button>
                   </div>
-                )}
-                {job.status === 'in_progress' && (
-                  <div style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: 'var(--status-pending)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(245,158,11,0.2)' }}>
-                    <Lock size={16} /> Fonds sécurisés (En cours)
-                  </div>
-                )}
-                {job.status === 'completed' && (
-                  <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--status-success)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid rgba(16,185,129,0.2)' }}>
-                    <CheckCircle2 size={16} /> Livré - Fonds libérés
-                  </div>
-                )}
+                ))}
               </div>
+            )}
             </div>
           ))}
         </div>
