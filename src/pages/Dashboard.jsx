@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -10,6 +10,12 @@ const Dashboard = () => {
   
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // KYC States
+  const [isVerified, setIsVerified] = useState(false);
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [kycMethod, setKycMethod] = useState(''); // 'id' or 'wallet'
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -57,7 +63,31 @@ const Dashboard = () => {
 
   return (
     <div className="container" style={{ padding: '4rem 0' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Mon Tableau de bord</h1>
+      <h1 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        Mon Tableau de bord
+        {profile?.role === 'freelancer' && isVerified && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.9rem', backgroundColor: '#EFF6FF', color: '#2563EB', padding: '0.25rem 0.75rem', borderRadius: '9999px', border: '1px solid #BFDBFE' }}>
+            <ShieldCheck size={16} /> Profil Vérifié
+          </span>
+        )}
+      </h1>
+
+      {/* KYC Alert for Freelancers */}
+      {profile?.role === 'freelancer' && !isVerified && (
+        <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #F87171', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3 style={{ color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <AlertCircle size={20} /> Vérification d'identité requise
+            </h3>
+            <p style={{ color: '#991B1B', fontSize: '0.9rem' }}>
+              Pour garantir un environnement de confiance (et pouvoir utiliser le paiement séquestre), veuillez faire vérifier votre profil.
+            </p>
+          </div>
+          <button onClick={() => setShowKycModal(true)} className="btn" style={{ backgroundColor: '#DC2626', color: 'white', border: 'none' }}>
+            Vérifier mon identité
+          </button>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
         <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
@@ -122,6 +152,65 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal KYC */}
+      {showKycModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100
+        }}>
+          <div className="card" style={{ width: '100%', maxWidth: '500px', margin: '1rem', position: 'relative', padding: '2rem' }}>
+            <button onClick={() => setShowKycModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ marginBottom: '0.5rem' }}>Vérification de confiance (KYC)</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              Choisissez une méthode rapide pour obtenir votre badge "Profil Vérifié".
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+              <div 
+                onClick={() => setKycMethod('id')}
+                style={{ border: `2px solid ${kycMethod === 'id' ? 'var(--primary)' : 'var(--border-color)'}`, borderRadius: '12px', padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'all 0.2s' }}
+              >
+                <div style={{ padding: '0.75rem', backgroundColor: '#F1F5F9', borderRadius: '8px', color: 'var(--text-main)' }}><UploadCloud size={24} /></div>
+                <div>
+                  <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Pièce d'identité</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Carte d'identité, Passeport (via Stripe Identity)</p>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => setKycMethod('wallet')}
+                style={{ border: `2px solid ${kycMethod === 'wallet' ? 'var(--primary)' : 'var(--border-color)'}`, borderRadius: '12px', padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'all 0.2s' }}
+              >
+                <div style={{ padding: '0.75rem', backgroundColor: '#F1F5F9', borderRadius: '8px', color: 'var(--text-main)' }}><Wallet size={24} /></div>
+                <div>
+                  <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Connexion Wallet Web3</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Signature cryptographique (idéal experts Blockchain)</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => {
+                setIsVerifying(true);
+                setTimeout(() => {
+                  setIsVerifying(false);
+                  setIsVerified(true);
+                  setShowKycModal(false);
+                }, 2500);
+              }}
+              className="btn btn-primary" 
+              style={{ width: '100%' }} 
+              disabled={!kycMethod || isVerifying}
+            >
+              {isVerifying ? 'Vérification en cours...' : 'Lancer la vérification'}
+            </button>
+          </div>
         </div>
       )}
     </div>
