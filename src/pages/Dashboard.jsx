@@ -16,6 +16,14 @@ const Dashboard = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [kycMethod, setKycMethod] = useState(''); // 'id' or 'wallet'
   const [isVerifying, setIsVerifying] = useState(false);
+  
+  // Profile Edition States
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    domain: '',
+    experience_level: '',
+    skills: '' // comma separated for simplicity in UI
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -24,6 +32,11 @@ const Dashboard = () => {
     }
 
     if (user && profile) {
+      setProfileData({
+        domain: profile.domain || '',
+        experience_level: profile.experience_level || '',
+        skills: profile.skills ? profile.skills.join(', ') : ''
+      });
       fetchDashboardData();
     }
   }, [user, profile, authLoading, navigate]);
@@ -56,6 +69,27 @@ const Dashboard = () => {
       console.error("Erreur lors de la récupération des données:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const skillsArray = profileData.skills.split(',').map(s => s.trim()).filter(s => s !== '');
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          domain: profileData.domain || null,
+          experience_level: profileData.experience_level || null,
+          skills: skillsArray
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      setIsEditingProfile(false);
+      // In a real app we would update the AuthContext profile here too
+      alert('Profil mis à jour avec succès !');
+    } catch (err) {
+      alert("Erreur lors de la mise à jour : " + err.message);
     }
   };
 
@@ -92,6 +126,66 @@ const Dashboard = () => {
           <button onClick={() => setShowKycModal(true)} className="btn" style={{ backgroundColor: '#DC2626', color: 'white', border: 'none' }}>
             Vérifier mon identité
           </button>
+        </div>
+      )}
+
+      {/* Freelancer Profile Edition */}
+      {profile?.role === 'freelancer' && (
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Mes expertises (Matching)</h3>
+            <button onClick={() => setIsEditingProfile(!isEditingProfile)} className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}>
+              {isEditingProfile ? 'Annuler' : 'Modifier'}
+            </button>
+          </div>
+          
+          {isEditingProfile ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Domaine d'expertise</label>
+                  <select className="form-input" value={profileData.domain} onChange={(e) => setProfileData({...profileData, domain: e.target.value})}>
+                    <option value="">Sélectionner...</option>
+                    <option value="web3">Web3 & Blockchain</option>
+                    <option value="genai">IA Générative</option>
+                    <option value="nocode">No-Code</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Niveau</label>
+                  <select className="form-input" value={profileData.experience_level} onChange={(e) => setProfileData({...profileData, experience_level: e.target.value})}>
+                    <option value="">Sélectionner...</option>
+                    <option value="junior">Junior (1-2 ans)</option>
+                    <option value="confirme">Confirmé (3-5 ans)</option>
+                    <option value="expert">Expert (5+ ans)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Compétences techniques (séparées par une virgule)</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="Ex: React, Solidity, Node.js, Python, LangChain..."
+                  value={profileData.skills}
+                  onChange={(e) => setProfileData({...profileData, skills: e.target.value})}
+                />
+              </div>
+              <button onClick={handleSaveProfile} className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Enregistrer mon profil</button>
+            </div>
+          ) : (
+            <div style={{ color: 'var(--text-muted)' }}>
+              {profileData.domain || profileData.skills ? (
+                <div>
+                  <strong>Domaine:</strong> {profileData.domain} &nbsp; | &nbsp;
+                  <strong>Niveau:</strong> {profileData.experience_level} <br/>
+                  <strong>Compétences:</strong> {profileData.skills}
+                </div>
+              ) : (
+                <p style={{ margin: 0 }}>Complétez votre profil pour que l'algorithme YITTE vous propose automatiquement aux clients.</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 

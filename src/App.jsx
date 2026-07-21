@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard';
 import Signup from './pages/Signup';
 import JobsList from './pages/JobsList';
 import FreelancersList from './pages/FreelancersList';
+import JobMatches from './pages/JobMatches';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/jobs" element={<JobsList />} />
             <Route path="/freelancers" element={<FreelancersList />} />
+            <Route path="/job-matches/:id" element={<JobMatches />} />
           </Routes>
         </main>
         <Footer />

@@ -65,7 +65,12 @@ BLOC TECHNIQUE (usage interne — ne pas afficher tel quel au client) :
 {
   "needs_client_review": true,
   "review_points": ["liste courte des éléments que le client doit confirmer avant publication"],
-  "incoherence_detected": false
+  "incoherence_detected": false,
+  "match_criteria": {
+    "domain": "[Web3 / IA Générative / No-Code]",
+    "experience_level": "[Junior / Confirmé / Expert]",
+    "skills": ["liste", "de", "compétences", "techniques"]
+  }
 }
 \`\`\`
 `;
@@ -97,7 +102,8 @@ const parseAIResponse = (text) => {
     const metadata = metadataStr ? JSON.parse(metadataStr) : {
       needs_client_review: true,
       review_points: ["Veuillez relire l'ensemble du brief."],
-      incoherence_detected: false
+      incoherence_detected: false,
+      match_criteria: { domain: null, experience_level: null, skills: [] }
     };
 
     return { brief, metadata };

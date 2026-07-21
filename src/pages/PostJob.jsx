@@ -62,8 +62,8 @@ const PostJob = () => {
 
       if (error) throw error;
 
-      // Redirect to Escrow payment simulation
-      navigate(`/checkout/${data.id}?amount=${formData.budget}`);
+      // Redirect to matches view instead of checkout
+      navigate(`/job-matches/${data.id}`, { state: { matchCriteria: aiMetadata?.match_criteria } });
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
