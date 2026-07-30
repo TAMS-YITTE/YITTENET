@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ShoppingBag, Search, Tag, User } from 'lucide-react';
@@ -43,7 +43,7 @@ const Marketplace = () => {
     { id: 'web3', label: 'Web3 & Crypto' },
     { id: 'genai', label: 'IA Générative' },
     { id: 'nocode', label: 'No-Code & Scripts' },
-    { id: 'juridique', label: 'Légal & Conformité' }
+    { id: 'legaltech', label: 'LegalTech' }
   ];
 
   return (
@@ -140,3 +140,4 @@ const Marketplace = () => {
 };
 
 export default Marketplace;
+

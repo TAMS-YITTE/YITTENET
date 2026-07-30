@@ -53,7 +53,7 @@ const domainData = {
       { id: 6, title: 'Migration No-Code', desc: 'Transfert d\'un site existant vers une solution no-code.', icon: <ArrowRightLeft size={32} color="var(--domain-nocode)" /> },
     ]
   },
-  juridique: {
+  legaltech: {
     title: 'LegalTech & Conformité',
     color: 'var(--domain-genai-color)', // On réutilise une couleur existante pour l'instant
     bg: 'var(--domain-genai-bg)',

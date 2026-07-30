@@ -1,27 +1,19 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@12.0.0?target=deno'
+import Stripe from 'npm:stripe@17';
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
-  apiVersion: '2022-11-15',
-  httpClient: Stripe.createFetchHttpClient(),
-})
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '');
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
     )
 
     const { data: { user } } = await supabaseClient.auth.getUser()
@@ -29,7 +21,6 @@ serve(async (req) => {
 
     const { productId } = await req.json()
 
-    // Get product details
     const { data: product, error: productError } = await supabaseClient
       .from('digital_products')
       .select('*')
@@ -40,7 +31,6 @@ serve(async (req) => {
 
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173'
 
-    // Create a direct payment checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -52,7 +42,7 @@ serve(async (req) => {
               name: product.title,
               description: `Achat sur YITTE Boutique`,
             },
-            unit_amount: product.price * 100, // in cents
+            unit_amount: product.price * 100,
           },
           quantity: 1,
         },
