@@ -25,6 +25,7 @@ const Footer = () => {
             <li><Link to="/domain/web3" style={{ color: 'var(--text-muted)' }}>Web3 & Blockchain</Link></li>
             <li><Link to="/domain/genai" style={{ color: 'var(--text-muted)' }}>IA Générative</Link></li>
             <li><Link to="/domain/nocode" style={{ color: 'var(--text-muted)' }}>No-Code & Automatisation</Link></li>
+            <li><Link to="/domain/legaltech" style={{ color: 'var(--text-muted)' }}>LegalTech</Link></li>
           </ul>
         </div>
 

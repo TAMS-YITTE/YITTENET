@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ShieldCheck, Star, Download, FileCheck, Crown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-const DOMAIN_LABELS = { web3: 'Web3 & Blockchain', genai: 'IA Générative', nocode: 'No-Code & Automatisation' };
+const DOMAIN_LABELS = { web3: 'Web3 & Blockchain', genai: 'IA Générative', nocode: 'No-Code & Automatisation', legaltech: 'LegalTech' };
 const LEVEL_LABELS = { junior: 'Junior', confirme: 'Confirmé', expert: 'Expert' };
 
 const Profile = () => {

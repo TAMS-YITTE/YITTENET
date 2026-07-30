@@ -189,6 +189,7 @@ const PostJob = () => {
               <option value="web3">Web3 & Blockchain</option>
               <option value="genai">IA Générative</option>
               <option value="nocode">No-Code & Automatisation</option>
+              <option value="legaltech">LegalTech</option>
             </select>
           </div>
 
