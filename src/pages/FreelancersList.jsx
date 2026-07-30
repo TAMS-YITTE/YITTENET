@@ -140,6 +140,11 @@ const FreelancersList = () => {
           style={{ borderColor: filter === 'nocode' ? 'var(--domain-nocode)' : undefined }}
           onClick={() => setFilter('nocode')}
         >No-Code</button>
+        <button 
+          className={`btn ${filter === 'legaltech' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ borderColor: filter === 'legaltech' ? 'var(--text-main)' : undefined }}
+          onClick={() => setFilter('legaltech')}
+        >LegalTech</button>
       </div>
 
       {loading ? (

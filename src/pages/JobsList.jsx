@@ -192,6 +192,10 @@ const JobsList = () => {
               <input type="radio" name="domain" checked={filter === 'nocode'} onChange={() => setFilter('nocode')} />
               No-Code
             </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-main)' }}>
+              <input type="radio" name="domain" checked={filter === 'legaltech'} onChange={() => setFilter('legaltech')} />
+              LegalTech
+            </label>
           </div>
         </div>
 
