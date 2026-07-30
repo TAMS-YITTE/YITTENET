@@ -23,7 +23,8 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState({
     domain: '',
     experience_level: '',
-    skills: '' // comma separated for simplicity in UI
+    skills: '', // comma separated for simplicity in UI
+    tjm: ''
   });
 
   // Escrow / payment states
@@ -46,7 +47,8 @@ const Dashboard = () => {
       setProfileData({
         domain: profile.domain || '',
         experience_level: profile.experience_level || '',
-        skills: profile.skills ? profile.skills.join(', ') : ''
+        skills: profile.skills ? profile.skills.join(', ') : '',
+        tjm: profile.tjm || ''
       });
       fetchDashboardData();
     }
@@ -93,7 +95,8 @@ const Dashboard = () => {
         .update({
           domain: profileData.domain || null,
           experience_level: profileData.experience_level || null,
-          skills: skillsArray
+          skills: skillsArray,
+          tjm: profileData.tjm ? parseInt(profileData.tjm, 10) : null
         })
         .eq('id', user.id);
         
@@ -130,6 +133,44 @@ const Dashboard = () => {
 
       if (fnError) throw fnError;
       if (!data?.url) throw new Error("Impossible de générer le lien de paiement.");
+
+      window.location.href = data.url;
+    } catch (err) {
+      setEscrowError(err.message);
+      setPayingProposalId(null);
+    }
+  };
+
+  const handleAcceptAndPayHub2 = async (job, proposal) => {
+    setEscrowError('');
+    setPayingProposalId(proposal.id);
+    try {
+      const { data: escrow, error: escrowInsertError } = await supabase
+        .from('escrow_transactions')
+        .insert({
+          job_id: job.id,
+          proposal_id: proposal.id,
+          amount: proposal.amount,
+          status: 'pending',
+          client_id: user.id,
+          freelancer_id: proposal.freelancer_id
+        })
+        .select()
+        .single();
+
+      if (escrowInsertError) {
+        if (escrowInsertError.code === '23505') {
+          throw new Error("Un paiement est déjà en cours pour cette mission.");
+        }
+        throw escrowInsertError;
+      }
+
+      const { data, error: fnError } = await supabase.functions.invoke('create-hub2-checkout', {
+        body: { escrowTransactionId: escrow.id }
+      });
+
+      if (fnError) throw fnError;
+      if (!data?.url) throw new Error("Impossible de générer le lien de paiement Hub2.");
 
       window.location.href = data.url;
     } catch (err) {
@@ -265,17 +306,29 @@ const Dashboard = () => {
                   </select>
                 </div>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Compétences techniques (séparées par une virgule)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="Ex: React, Solidity, Node.js, Python, LangChain..."
-                  value={profileData.skills}
-                  onChange={(e) => setProfileData({...profileData, skills: e.target.value})}
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Compétences techniques (séparées par une virgule)</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Ex: React, Solidity, Node.js, Python, LangChain..."
+                    value={profileData.skills}
+                    onChange={(e) => setProfileData({...profileData, skills: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Taux Journalier Moyen (TJM en €)</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="Ex: 450"
+                    value={profileData.tjm}
+                    onChange={(e) => setProfileData({...profileData, tjm: e.target.value})}
+                  />
+                </div>
               </div>
-              <button onClick={handleSaveProfile} className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Enregistrer mon profil</button>
+              <button onClick={handleSaveProfile} className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '1rem' }}>Enregistrer mon profil</button>
             </div>
           ) : (
             <div style={{ color: 'var(--text-muted)' }}>
@@ -283,7 +336,8 @@ const Dashboard = () => {
                 <div>
                   <strong>Domaine:</strong> {profileData.domain} &nbsp; | &nbsp;
                   <strong>Niveau:</strong> {profileData.experience_level} <br/>
-                  <strong>Compétences:</strong> {profileData.skills}
+                  <strong>Compétences:</strong> {profileData.skills} <br/>
+                  <strong>TJM:</strong> {profileData.tjm ? `${profileData.tjm} €/j` : 'Non renseigné'}
                 </div>
               ) : (
                 <p style={{ margin: 0 }}>Complétez votre profil pour que l'algorithme YITTE vous propose automatiquement aux clients.</p>
@@ -370,14 +424,24 @@ const Dashboard = () => {
                     <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
                       {prop.message}
                     </p>
-                    <button
-                      onClick={() => handleAcceptAndPay(job, prop)}
-                      className="btn btn-primary"
-                      style={{ width: '100%' }}
-                      disabled={payingProposalId === prop.id}
-                    >
-                      {payingProposalId === prop.id ? 'Redirection vers le paiement...' : 'Accepter et Payer (Séquestre)'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                      <button
+                        onClick={() => handleAcceptAndPay(job, prop)}
+                        className="btn btn-primary"
+                        style={{ flex: 1 }}
+                        disabled={payingProposalId === prop.id}
+                      >
+                        {payingProposalId === prop.id ? 'Redirection...' : 'Payer par Carte (Stripe)'}
+                      </button>
+                      <button
+                        onClick={() => handleAcceptAndPayHub2(job, prop)}
+                        className="btn btn-outline"
+                        style={{ flex: 1, backgroundColor: '#FF7900', color: '#fff', borderColor: '#FF7900' }}
+                        disabled={payingProposalId === prop.id}
+                      >
+                        {payingProposalId === prop.id ? 'Redirection...' : 'Payer via Mobile Money (Hub2)'}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

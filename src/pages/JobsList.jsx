@@ -10,6 +10,7 @@ const JobsList = () => {
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selectedJob, setSelectedJob] = useState(null);
@@ -28,10 +29,11 @@ const JobsList = () => {
     }
   }, [user, profile]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (e) => {
+    if (e) e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('jobs')
         .select(`
           *,
@@ -39,6 +41,12 @@ const JobsList = () => {
         `)
         .eq('status', 'open')
         .order('created_at', { ascending: false });
+
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setJobs(data || []);
@@ -147,6 +155,18 @@ const JobsList = () => {
           <Link to="/post-job" className="btn btn-outline">Publier un besoin</Link>
         )}
       </div>
+
+      <form onSubmit={fetchJobs} style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 3rem auto' }}>
+        <input 
+          type="text" 
+          placeholder="Rechercher par mot-clé, titre..." 
+          className="form-input" 
+          style={{ flex: 1 }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit" className="btn btn-primary" style={{ padding: '0 1.5rem' }}>Rechercher</button>
+      </form>
 
       <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '3rem' }}>
         {/* Sidebar Filters */}

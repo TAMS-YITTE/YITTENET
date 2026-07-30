@@ -9,6 +9,7 @@ const FreelancersList = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const [freelancers, setFreelancers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [ratings, setRatings] = useState({}); // { freelancerId: { avg, count } }
   const [loading, setLoading] = useState(true);
 
@@ -16,11 +17,18 @@ const FreelancersList = () => {
     fetchFreelancers();
   }, []);
 
-  const fetchFreelancers = async () => {
+  const fetchFreelancers = async (e) => {
+    if (e) e.preventDefault();
     setLoading(true);
     try {
+      let query = supabase.from('profiles').select('*').eq('role', 'freelancer');
+      
+      if (searchQuery.trim()) {
+        query = query.or(`full_name.ilike.%${searchQuery}%,bio.ilike.%${searchQuery}%`);
+      }
+
       const [{ data, error }, { data: reviewsData }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('role', 'freelancer'),
+        query,
         supabase.from('reviews').select('freelancer_id, rating'),
       ]);
 
@@ -99,6 +107,18 @@ const FreelancersList = () => {
         </p>
       </div>
 
+      <form onSubmit={fetchFreelancers} style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 3rem auto' }}>
+        <input 
+          type="text" 
+          placeholder="Rechercher par nom, compétence, mot-clé..." 
+          className="form-input" 
+          style={{ flex: 1 }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit" className="btn btn-primary" style={{ padding: '0 1.5rem' }}>Rechercher</button>
+      </form>
+
       {/* Tabs Filters */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '3rem' }}>
         <button 
@@ -167,7 +187,7 @@ const FreelancersList = () => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
                 <div style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>
-                  A partir de 400€/j
+                  {freelancer.tjm ? `A partir de ${freelancer.tjm}€/j` : 'TJM sur devis'}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button onClick={() => startChat(freelancer.id)} className="btn btn-primary" style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Envoyer un message">

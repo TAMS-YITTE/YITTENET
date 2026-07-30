@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { 
   Terminal, MonitorSmartphone, Wallet, Image as ImageIcon, Search, Coins, 
   MessageSquare, Cpu, FileText, Database, Settings2, GitBranch,
-  LayoutTemplate, BarChart3, Repeat, TableProperties, CheckSquare, ArrowRightLeft
+  LayoutTemplate, BarChart3, Repeat, TableProperties, CheckSquare, ArrowRightLeft,
+  ScrollText, ShieldCheck, UserCheck, FileDigit
 } from 'lucide-react';
 
 const domainData = {
@@ -50,6 +51,21 @@ const domainData = {
       { id: 4, title: 'Bases de données', desc: 'Mise en place Airtable, Notion complexes.', icon: <TableProperties size={32} color="var(--domain-nocode)" /> },
       { id: 5, title: 'Tunnels de conversion', desc: 'Typeform, Tally et intégrations avancées.', icon: <CheckSquare size={32} color="var(--domain-nocode)" /> },
       { id: 6, title: 'Migration No-Code', desc: 'Transfert d\'un site existant vers une solution no-code.', icon: <ArrowRightLeft size={32} color="var(--domain-nocode)" /> },
+    ]
+  },
+  juridique: {
+    title: 'LegalTech & Conformité',
+    color: 'var(--domain-genai-color)', // On réutilise une couleur existante pour l'instant
+    bg: 'var(--domain-genai-bg)',
+    gradClass: 'grad-genai',
+    badgeClass: 'badge-genai',
+    jobs: [
+      { id: 1, title: 'Contrats & CGV', desc: 'Rédaction de CGV, contrats de prestation, NDA, licences.', icon: <ScrollText size={32} color="var(--domain-genai-color)" /> },
+      { id: 2, title: 'Mise en conformité RGPD', desc: 'Audit, registre de traitement, politiques de confidentialité.', icon: <ShieldCheck size={32} color="var(--domain-genai-color)" /> },
+      { id: 3, title: 'KYC & Vérification', desc: 'Intégration Stripe Identity, vérification d\'identité.', icon: <UserCheck size={32} color="var(--domain-genai-color)" /> },
+      { id: 4, title: 'Due Diligence startup', desc: 'Analyse de risques, conformité levée de fonds, data room.', icon: <FileDigit size={32} color="var(--domain-genai-color)" /> },
+      { id: 5, title: 'Régulation crypto / PSAN', desc: 'Analyse juridique du token, enregistrement AMF, statut PSAN.', icon: <Coins size={32} color="var(--domain-genai-color)" /> },
+      { id: 6, title: 'Mentions légales & cookies', desc: 'Génération et mise à jour des pages légales obligatoires.', icon: <FileText size={32} color="var(--domain-genai-color)" /> },
     ]
   }
 };

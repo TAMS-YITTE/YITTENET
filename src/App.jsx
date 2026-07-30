@@ -5,6 +5,7 @@ import './index.css';
 // Layout Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import CookieBanner from './components/CookieBanner';
 
 // Pages
 import Home from './pages/Home';
@@ -49,6 +50,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <CookieBanner />
       </div>
     </Router>
   );
