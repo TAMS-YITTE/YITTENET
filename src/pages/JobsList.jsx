@@ -197,15 +197,7 @@ const JobsList = () => {
 
         {/* Jobs Feed */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Search Bar */}
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={20} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-              <input type="text" className="form-input" placeholder="Rechercher par mot-clé (ex: Solidity, RAG, Webflow...)" style={{ paddingLeft: '3rem' }} />
-            </div>
-            <button className="btn btn-primary">Rechercher</button>
-          </div>
-
+          {/* Jobs Feed */}
           {loading ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Chargement des missions...</div>
           ) : (
