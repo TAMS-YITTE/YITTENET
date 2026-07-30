@@ -22,6 +22,7 @@ import ProductDetails from './pages/ProductDetails';
 import Messages from './pages/Messages';
 import Legal from './pages/Legal';
 import Premium from './pages/Premium';
+import CreateProduct from './pages/CreateProduct';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
             <Route path="/confidentialite" element={<Legal doc="privacy" />} />
             <Route path="/mentions-legales" element={<Legal doc="legal" />} />
             <Route path="/premium" element={<Premium />} />
+            <Route path="/create-product" element={<CreateProduct />} />
           </Routes>
         </main>
         <Footer />

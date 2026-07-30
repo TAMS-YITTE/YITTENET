@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet, Star } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet, Star, ShoppingBag, FileDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -10,6 +10,8 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [jobs, setJobs] = useState([]);
+  const [myProducts, setMyProducts] = useState([]);
+  const [myPurchases, setMyPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // KYC States
@@ -75,10 +77,28 @@ const Dashboard = () => {
         if (!error && data) {
           setJobs(data);
         }
+
+        // Fetch client purchases
+        const { data: purchasesData } = await supabase
+          .from('purchases')
+          .select(`
+            *,
+            digital_products (*)
+          `)
+          .eq('client_id', user.id)
+          .order('created_at', { ascending: false });
+        if (purchasesData) setMyPurchases(purchasesData);
+
       } else {
-        // Freelancer: for now we just show a generic message or empty list
-        // in a full app, we would fetch jobs where freelancer applied
+        // Freelancer: fetch their products
         setJobs([]);
+        
+        const { data: productsData } = await supabase
+          .from('digital_products')
+          .select('*')
+          .eq('freelancer_id', user.id)
+          .order('created_at', { ascending: false });
+        if (productsData) setMyProducts(productsData);
       }
     } catch (err) {
       console.error("Erreur lors de la récupération des données:", err);
@@ -504,6 +524,66 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* SECTION BOUTIQUE */}
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', marginTop: '3rem' }}>
+        {profile?.role === 'client' ? 'Vos Achats (Boutique)' : 'Vos Produits en Vente'}
+      </h2>
+
+      {profile?.role === 'client' ? (
+        myPurchases.length === 0 ? (
+          <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Vous n'avez effectué aucun achat dans la boutique.</p>
+            <Link to="/marketplace" className="btn btn-outline">Explorer la boutique</Link>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {myPurchases.map(purchase => (
+              <div key={purchase.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <span className={`badge badge-${purchase.digital_products?.category}`}>{purchase.digital_products?.category.toUpperCase()}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--status-success)' }}>Payé {purchase.digital_products?.price} €</span>
+                </div>
+                <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{purchase.digital_products?.title}</h3>
+                <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                  <a href={purchase.digital_products?.file_url} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                    <FileDown size={16} /> Accéder au Livrable
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        myProducts.length === 0 ? (
+          <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Vous n'avez aucun produit en vente.</p>
+            <Link to="/create-product" className="btn btn-primary">Créer un produit</Link>
+          </div>
+        ) : (
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <Link to="/create-product" className="btn btn-outline">Créer un nouveau produit</Link>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              {myProducts.map(product => (
+                <div key={product.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <span className={`badge badge-${product.category}`}>{product.category.toUpperCase()}</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{product.price} €</span>
+                  </div>
+                  <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{product.title}</h3>
+                  <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                    <Link to={`/product/${product.id}`} className="btn btn-outline" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                      <ShoppingBag size={16} /> Voir la fiche publique
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
       )}
 
       {/* Modal KYC */}
