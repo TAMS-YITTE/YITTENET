@@ -1,11 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogOut, LayoutDashboard, MessageSquare, Crown } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, MessageSquare, Crown, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // 1. Fetch existing notifications
+    const fetchNotifications = async () => {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (data) setNotifications(data);
+    };
+
+    fetchNotifications();
+
+    // 2. Subscribe to new notifications (Realtime)
+    const channel = supabase
+      .channel('public:notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new, ...prev].slice(0, 10));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.read_status).length;
+
+  const handleMarkAsRead = async (notification) => {
+    if (!notification.read_status) {
+      await supabase
+        .from('notifications')
+        .update({ read_status: true })
+        .eq('id', notification.id);
+      setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read_status: true } : n));
+    }
+    setShowDropdown(false);
+    if (notification.link) {
+      navigate(notification.link);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -57,6 +114,37 @@ const Navbar = () => {
                   <Crown size={18} /> Premium
                 </Link>
               )}
+              <div style={{ position: 'relative' }}>
+                <button onClick={() => setShowDropdown(!showDropdown)} className="btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', position: 'relative', display: 'flex', alignItems: 'center' }} title="Notifications">
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span style={{ position: 'absolute', top: '2px', right: '4px', backgroundColor: '#EF4444', color: 'white', fontSize: '0.65rem', fontWeight: 'bold', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {showDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '8px', width: '300px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', zIndex: 100, maxHeight: '400px', overflowY: 'auto' }}>
+                    <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold', color: 'var(--text-main)' }}>Notifications</div>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Aucune notification</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {notifications.map(n => (
+                          <div 
+                            key={n.id} 
+                            onClick={() => handleMarkAsRead(n)}
+                            style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: n.read_status ? 'transparent' : 'rgba(59, 130, 246, 0.05)', transition: 'background-color 0.2s' }}
+                          >
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: n.read_status ? 'var(--text-muted)' : 'var(--text-main)', fontWeight: n.read_status ? 'normal' : 'bold' }}>{n.content}</p>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', display: 'block' }}>{new Date(n.created_at).toLocaleDateString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               <Link to="/messages" className="btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }} title="Messagerie">
                 <MessageSquare size={20} />
               </Link>

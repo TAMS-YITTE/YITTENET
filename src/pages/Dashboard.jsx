@@ -26,7 +26,8 @@ const Dashboard = () => {
     domain: '',
     experience_level: '',
     skills: '', // comma separated for simplicity in UI
-    tjm: ''
+    tjm: '',
+    availability_status: 'available'
   });
 
   // Escrow / payment states
@@ -50,7 +51,8 @@ const Dashboard = () => {
         domain: profile.domain || '',
         experience_level: profile.experience_level || '',
         skills: profile.skills ? profile.skills.join(', ') : '',
-        tjm: profile.tjm || ''
+        tjm: profile.tjm || '',
+        availability_status: profile.availability_status || 'available'
       });
       fetchDashboardData();
     }
@@ -116,7 +118,8 @@ const Dashboard = () => {
           domain: profileData.domain || null,
           experience_level: profileData.experience_level || null,
           skills: skillsArray,
-          tjm: profileData.tjm ? parseInt(profileData.tjm, 10) : null
+          tjm: profileData.tjm ? parseInt(profileData.tjm, 10) : null,
+          availability_status: profileData.availability_status
         })
         .eq('id', user.id);
         
@@ -348,12 +351,28 @@ const Dashboard = () => {
                   />
                 </div>
               </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginTop: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Statut de disponibilité</label>
+                  <select className="form-input" value={profileData.availability_status} onChange={(e) => setProfileData({...profileData, availability_status: e.target.value})}>
+                    <option value="available">🟢 Disponible immédiatement</option>
+                    <option value="part_time">🟡 À temps partiel (disponibilité limitée)</option>
+                    <option value="busy">🔴 Occupé(e) / En mission pleine</option>
+                  </select>
+                </div>
+              </div>
               <button onClick={handleSaveProfile} className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '1rem' }}>Enregistrer mon profil</button>
             </div>
           ) : (
             <div style={{ color: 'var(--text-muted)' }}>
               {profileData.domain || profileData.skills ? (
                 <div>
+                  <strong>Disponibilité:</strong> 
+                  <span style={{ marginLeft: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 'bold' }}>
+                    {profileData.availability_status === 'available' ? <><span style={{color: '#10B981'}}>🟢</span> Disponible</> :
+                     profileData.availability_status === 'part_time' ? <><span style={{color: '#F59E0B'}}>🟡</span> Temps partiel</> :
+                     <><span style={{color: '#EF4444'}}>🔴</span> Occupé</>}
+                  </span> <br/>
                   <strong>Domaine:</strong> {profileData.domain} &nbsp; | &nbsp;
                   <strong>Niveau:</strong> {profileData.experience_level} <br/>
                   <strong>Compétences:</strong> {profileData.skills} <br/>

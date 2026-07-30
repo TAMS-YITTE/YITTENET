@@ -65,6 +65,9 @@ const Profile = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span title={!profile.availability_status || profile.availability_status === 'available' ? 'Disponible' : profile.availability_status === 'part_time' ? 'À temps partiel' : 'Occupé(e)'} style={{ display: 'inline-flex', alignItems: 'center', fontSize: '1.5rem' }}>
+                  {!profile.availability_status || profile.availability_status === 'available' ? '🟢' : profile.availability_status === 'part_time' ? '🟡' : '🔴'}
+                </span>
                 {profile.full_name}
                 {profile.verified && <ShieldCheck size={24} color="var(--primary)" title="Identité vérifiée" />}
                 {profile.is_premium && (

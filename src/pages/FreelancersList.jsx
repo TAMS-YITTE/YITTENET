@@ -159,6 +159,9 @@ const FreelancersList = () => {
                 </div>
                 <div>
                   <h3 style={{ color: 'var(--text-main)', fontSize: '1.25rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span title={!freelancer.availability_status || freelancer.availability_status === 'available' ? 'Disponible' : freelancer.availability_status === 'part_time' ? 'À temps partiel' : 'Occupé(e)'} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      {!freelancer.availability_status || freelancer.availability_status === 'available' ? '🟢' : freelancer.availability_status === 'part_time' ? '🟡' : '🔴'}
+                    </span>
                     {freelancer.full_name}
                     {freelancer.verified && <ShieldCheck size={18} color="var(--primary)" />}
                     {freelancer.is_premium && (
