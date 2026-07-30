@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // KYC States
   const [isVerified, setIsVerified] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);
   const [kycMethod, setKycMethod] = useState(''); // 'id' or 'wallet'
   const [isVerifying, setIsVerifying] = useState(false);
-  
+
   // Profile Edition States
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -24,6 +25,16 @@ const Dashboard = () => {
     experience_level: '',
     skills: '' // comma separated for simplicity in UI
   });
+
+  // Escrow / payment states
+  const [payingProposalId, setPayingProposalId] = useState(null);
+  const [releasingJobId, setReleasingJobId] = useState(null);
+  const [escrowError, setEscrowError] = useState('');
+  const [reviewFormJobId, setReviewFormJobId] = useState(null);
+  const [reviewDraft, setReviewDraft] = useState({ rating: 5, comment: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const paymentBanner = searchParams.get('payment');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -52,11 +63,13 @@ const Dashboard = () => {
             proposals (
               *,
               profiles!proposals_freelancer_id_fkey(full_name)
-            )
+            ),
+            reviews (*),
+            escrow_transactions (*)
           `)
           .eq('client_id', user.id)
           .order('created_at', { ascending: false });
-          
+
         if (!error && data) {
           setJobs(data);
         }
@@ -93,6 +106,79 @@ const Dashboard = () => {
     }
   };
 
+  const handleAcceptAndPay = async (job, proposal) => {
+    setEscrowError('');
+    setPayingProposalId(proposal.id);
+    try {
+      const { data: escrow, error: escrowInsertError } = await supabase
+        .from('escrow_transactions')
+        .insert({
+          job_id: job.id,
+          proposal_id: proposal.id,
+          client_id: user.id,
+          freelancer_id: proposal.freelancer_id,
+          amount: proposal.amount
+        })
+        .select()
+        .single();
+
+      if (escrowInsertError) throw escrowInsertError;
+
+      const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', {
+        body: { escrowTransactionId: escrow.id }
+      });
+
+      if (fnError) throw fnError;
+      if (!data?.url) throw new Error("Impossible de générer le lien de paiement.");
+
+      window.location.href = data.url;
+    } catch (err) {
+      setEscrowError(err.message);
+      setPayingProposalId(null);
+    }
+  };
+
+  const handleReleaseEscrow = async (job) => {
+    setEscrowError('');
+    setReleasingJobId(job.id);
+    try {
+      const { error } = await supabase.functions.invoke('release-escrow', {
+        body: { jobId: job.id }
+      });
+      if (error) throw error;
+      await fetchDashboardData();
+      setReviewFormJobId(job.id);
+    } catch (err) {
+      setEscrowError(err.message);
+    } finally {
+      setReleasingJobId(null);
+    }
+  };
+
+  const handleSubmitReview = async (job) => {
+    const freelancerId = job.escrow_transactions?.[0]?.freelancer_id;
+    if (!freelancerId) return;
+
+    setSubmittingReview(true);
+    try {
+      const { error } = await supabase.from('reviews').insert({
+        job_id: job.id,
+        client_id: user.id,
+        freelancer_id: freelancerId,
+        rating: reviewDraft.rating,
+        comment: reviewDraft.comment || null
+      });
+      if (error) throw error;
+      setReviewFormJobId(null);
+      setReviewDraft({ rating: 5, comment: '' });
+      await fetchDashboardData();
+    } catch (err) {
+      setEscrowError(err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (authLoading || loading) {
     return <div className="container" style={{ padding: '4rem 0', textAlign: 'center' }}>Chargement du tableau de bord...</div>;
   }
@@ -111,6 +197,24 @@ const Dashboard = () => {
           </span>
         )}
       </h1>
+
+      {paymentBanner === 'success' && (
+        <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: 'var(--status-success)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Paiement confirmé, les fonds sont en séquestre.</span>
+          <button onClick={() => setSearchParams({})} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}><X size={18} /></button>
+        </div>
+      )}
+      {paymentBanner === 'cancelled' && (
+        <div style={{ backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--status-pending)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Paiement annulé — vous pouvez réessayer depuis le devis accepté.</span>
+          <button onClick={() => setSearchParams({})} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}><X size={18} /></button>
+        </div>
+      )}
+      {escrowError && (
+        <div style={{ backgroundColor: 'rgba(233, 64, 87, 0.1)', border: '1px solid rgba(233, 64, 87, 0.2)', color: 'var(--domain-genai-color)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          {escrowError}
+        </div>
+      )}
 
       {/* KYC Alert for Freelancers */}
       {profile?.role === 'freelancer' && !isVerified && (
@@ -266,15 +370,71 @@ const Dashboard = () => {
                     <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
                       {prop.message}
                     </p>
-                    <button 
-                      onClick={() => navigate('/checkout')}
-                      className="btn btn-primary" 
+                    <button
+                      onClick={() => handleAcceptAndPay(job, prop)}
+                      className="btn btn-primary"
                       style={{ width: '100%' }}
+                      disabled={payingProposalId === prop.id}
                     >
-                      Accepter et Payer (Séquestre)
+                      {payingProposalId === prop.id ? 'Redirection vers le paiement...' : 'Accepter et Payer (Séquestre)'}
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Validation de livraison pour le client */}
+            {profile?.role === 'client' && job.status === 'in_progress' && (
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem' }}>
+                <button
+                  onClick={() => handleReleaseEscrow(job)}
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={releasingJobId === job.id}
+                >
+                  {releasingJobId === job.id ? 'Libération des fonds...' : 'Valider la livraison et libérer les fonds'}
+                </button>
+              </div>
+            )}
+
+            {/* Formulaire d'avis pour le client, une fois la mission terminée */}
+            {profile?.role === 'client' && job.status === 'completed' && (job.reviews?.length || 0) === 0 && (
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem' }}>
+                {reviewFormJobId === job.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setReviewDraft({ ...reviewDraft, rating: n })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                        >
+                          <Star size={22} fill={n <= reviewDraft.rating ? '#F59E0B' : 'none'} color="#F59E0B" />
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      className="form-input"
+                      rows="2"
+                      placeholder="Votre avis sur cette mission (optionnel)"
+                      value={reviewDraft.comment}
+                      onChange={(e) => setReviewDraft({ ...reviewDraft, comment: e.target.value })}
+                    />
+                    <button
+                      onClick={() => handleSubmitReview(job)}
+                      className="btn btn-primary"
+                      disabled={submittingReview}
+                      style={{ alignSelf: 'flex-start' }}
+                    >
+                      {submittingReview ? 'Envoi...' : 'Publier mon avis'}
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setReviewFormJobId(job.id)} className="btn btn-outline">
+                    Laisser un avis
+                  </button>
+                )}
               </div>
             )}
             </div>

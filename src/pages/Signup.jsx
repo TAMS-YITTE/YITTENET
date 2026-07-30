@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UploadCloud, FileCheck, CheckCircle2, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 const Signup = () => {
@@ -8,9 +8,12 @@ const Signup = () => {
   const [role, setRole] = useState('freelancer');
   const [file, setFile] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+
   const navigate = useNavigate();
 
   const handleFileChange = (e) => {
@@ -38,44 +41,55 @@ const Signup = () => {
         
         navigate('/dashboard');
       } else {
-        // SIGNUP FLOW
+        // Garde-fou : le consentement est aussi bloqué côté UI (bouton désactivé),
+        // mais on revérifie ici pour ne jamais créer de compte sans acceptation.
+        if (!acceptedTerms || !acceptedPrivacy) {
+          throw new Error('Vous devez accepter les CGV/CGU et la politique de confidentialité pour créer un compte.');
+        }
+
+        // SIGNUP FLOW — the profiles row is created server-side by a DB trigger
+        // (see supabase/migrations/20260721120000_fix_signup_profile_trigger.sql),
+        // fed from this metadata, so it doesn't depend on a client session existing yet.
+        // Le consentement (accepted_terms/accepted_privacy) est horodaté par le trigger
+        // (migration 20260727130000_legal_consent.sql).
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              role,
+              full_name: fullName,
+              portfolio_url: portfolioUrl || null,
+              accepted_terms: true,
+              accepted_privacy: true,
+            },
+          },
         });
 
         if (authError) throw authError;
 
         if (authData.user) {
-          let cvUrl = null;
-
-          // Upload File if any (for freelancers)
-          if (role === 'freelancer' && file) {
+          // If email confirmation is required, there's no session yet — an
+          // authenticated storage upload would fail. Only attempt it when we
+          // actually have a session (email confirmation disabled, or instant signup).
+          if (role === 'freelancer' && file && authData.session) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${authData.user.id}-${Math.random()}.${fileExt}`;
             const { error: uploadError, data } = await supabase.storage
               .from('resumes')
               .upload(fileName, file);
-              
+
             if (!uploadError && data) {
               const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(data.path);
-              cvUrl = urlData.publicUrl;
+              await supabase.from('profiles').update({ cv_url: urlData.publicUrl }).eq('id', authData.user.id);
             }
           }
 
-          // Create Profile
-          const { error: profileError } = await supabase.from('profiles').insert({
-            id: authData.user.id,
-            role,
-            full_name: fullName,
-            portfolio_url: portfolioUrl || null,
-            cv_url: cvUrl
-          });
-
-          if (profileError) throw profileError;
-
           setSubmitted(true);
-          setTimeout(() => navigate('/dashboard'), 2000);
+          setNeedsEmailConfirmation(!authData.session);
+          if (authData.session) {
+            setTimeout(() => navigate('/dashboard'), 2000);
+          }
         }
       }
     } catch (err) {
@@ -91,7 +105,9 @@ const Signup = () => {
         <CheckCircle2 size={80} color="var(--status-success)" style={{ margin: '0 auto 2rem' }} />
         <h1 style={{ marginBottom: '1rem' }}>Inscription réussie !</h1>
         <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>
-          Bienvenue sur YITTE. Vous allez être redirigé vers votre tableau de bord...
+          {needsEmailConfirmation
+            ? 'Vérifiez votre boîte mail et confirmez votre adresse pour activer votre compte, puis connectez-vous.'
+            : 'Bienvenue sur YITTE. Vous allez être redirigé vers votre tableau de bord...'}
         </p>
       </div>
     );
@@ -195,7 +211,42 @@ const Signup = () => {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '2rem', padding: '1rem' }} disabled={loading}>
+          {!isLogin && (
+            <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  style={{ marginTop: '0.15rem' }}
+                />
+                <span>
+                  J'accepte les{' '}
+                  <Link to="/cgv" target="_blank" style={{ color: 'var(--primary)' }}>Conditions Générales de Vente et d'Utilisation</Link>.
+                </span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={acceptedPrivacy}
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  style={{ marginTop: '0.15rem' }}
+                />
+                <span>
+                  J'ai lu et j'accepte la{' '}
+                  <Link to="/confidentialite" target="_blank" style={{ color: 'var(--primary)' }}>Politique de confidentialité (RGPD)</Link>,
+                  et je consens au traitement de mes données personnelles.
+                </span>
+              </label>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: '100%', marginTop: '1.5rem', padding: '1rem', opacity: (!isLogin && (!acceptedTerms || !acceptedPrivacy)) ? 0.5 : 1 }}
+            disabled={loading || (!isLogin && (!acceptedTerms || !acceptedPrivacy))}
+          >
             {loading ? 'Chargement...' : (isLogin ? 'Se connecter' : `Créer mon compte ${role === 'freelancer' ? 'Prestataire' : 'Client'}`)}
           </button>
         </form>

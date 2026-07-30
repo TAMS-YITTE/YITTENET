@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, MessageSquare, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
@@ -34,8 +34,12 @@ const Navbar = () => {
 
         {/* Links */}
         <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-          <Link to="/jobs" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s' }}>Missions</Link>
-          <Link to="/freelancers" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s' }}>Prestataires</Link>
+          <Link to="/jobs" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Missions</Link>
+          <Link to="/freelancers" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Prestataires</Link>
+          <Link to="/marketplace" style={{ color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>Boutique</Link>
+          {user && (
+            <Link to="/messages" style={{ color: 'var(--text-main)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Messagerie</Link>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontSize: '0.875rem' }}>
             <ShieldCheck size={16} /> Paiement Séquestre
           </div>
@@ -48,6 +52,14 @@ const Navbar = () => {
               {profile?.role === 'client' && (
                 <Link to="/post-job" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Publier un besoin</Link>
               )}
+              {profile?.role === 'freelancer' && (
+                <Link to="/premium" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: profile?.is_premium ? '#F59E0B' : 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }} title={profile?.is_premium ? 'Abonnement Premium actif' : 'Passer Premium'}>
+                  <Crown size={18} /> Premium
+                </Link>
+              )}
+              <Link to="/messages" className="btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }} title="Messagerie">
+                <MessageSquare size={20} />
+              </Link>
               <Link to="/dashboard" className="btn btn-outline" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <LayoutDashboard size={18} /> Tableau de bord
               </Link>

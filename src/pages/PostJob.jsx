@@ -62,8 +62,17 @@ const PostJob = () => {
 
       if (error) throw error;
 
+      // Always build match criteria from the final form state — domain is always
+      // known even if the client never used the AI assistant (or the AI response
+      // didn't include match_criteria). Skills/level are a bonus when available.
+      const matchCriteria = {
+        domain: formData.domain,
+        experience_level: aiMetadata?.match_criteria?.experience_level || null,
+        skills: aiMetadata?.match_criteria?.skills || []
+      };
+
       // Redirect to matches view instead of checkout
-      navigate(`/job-matches/${data.id}`, { state: { matchCriteria: aiMetadata?.match_criteria } });
+      navigate(`/job-matches/${data.id}`, { state: { matchCriteria } });
     } catch (err) {
       setErrorMsg(err.message);
     } finally {

@@ -1,16 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Sparkles, CheckCircle2, User, ArrowRight } from 'lucide-react';
+import { Sparkles, CheckCircle2, User, ArrowRight, MessageSquare } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { getOrCreateConversation } from '../lib/chat';
 
 const JobMatches = () => {
   const { id: jobId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   
+  const { user } = useAuth();
   const [freelancers, setFreelancers] = useState([]);
   const [loading, setLoading] = useState(true);
   const matchCriteria = location.state?.matchCriteria;
+
+  const handleInvite = async (freelancer) => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    const { data, error } = await getOrCreateConversation({
+      jobId,
+      clientId: user.id,
+      freelancerId: freelancer.id,
+    });
+    if (error) {
+      console.error('Ouverture conversation impossible:', error.message);
+      alert("Impossible d'ouvrir la conversation pour le moment.");
+      return;
+    }
+    navigate(`/messages/${data.id}`);
+  };
 
   useEffect(() => {
     if (!matchCriteria) {
@@ -127,8 +148,8 @@ const JobMatches = () => {
                   </div>
                 </div>
               </div>
-              <button onClick={() => alert("Dans la version finale, cela enverra une notification directe au freelance ! L'email d'invitation part.")} className="btn btn-outline">
-                Inviter
+              <button onClick={() => handleInvite(freelancer)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <MessageSquare size={16} /> Contacter
               </button>
             </div>
           ))}

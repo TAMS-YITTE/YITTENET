@@ -37,6 +37,15 @@ const Footer = () => {
           </ul>
         </div>
 
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Légal</h4>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <li><Link to="/cgv" style={{ color: 'var(--text-muted)' }}>CGV / CGU</Link></li>
+            <li><Link to="/confidentialite" style={{ color: 'var(--text-muted)' }}>Politique de confidentialité</Link></li>
+            <li><Link to="/mentions-legales" style={{ color: 'var(--text-muted)' }}>Mentions légales</Link></li>
+          </ul>
+        </div>
+
       </div>
       <div className="container" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
         &copy; {new Date().getFullYear()} YITTE. Tous droits réservés. Prototype.

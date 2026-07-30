@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Filter, Clock, MapPin, X, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, Clock, MapPin, X, CheckCircle2, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { getOrCreateConversation } from '../lib/chat';
 
 const JobsList = () => {
   const { user, profile } = useAuth();
@@ -108,6 +109,28 @@ const JobsList = () => {
     }
   };
 
+  const handleContactClient = async (job) => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    if (profile?.role !== 'freelancer') {
+      alert('Vous devez être connecté avec un compte Freelance pour contacter un client.');
+      return;
+    }
+    const { data, error } = await getOrCreateConversation({
+      jobId: job.id,
+      clientId: job.client_id,
+      freelancerId: user.id,
+    });
+    if (error) {
+      console.error('Ouverture conversation impossible:', error.message);
+      alert("Impossible d'ouvrir la conversation pour le moment.");
+      return;
+    }
+    navigate(`/messages/${data.id}`);
+  };
+
   const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
@@ -187,13 +210,20 @@ const JobsList = () => {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={14} /> Publié le {formatDate(job.created_at)}</span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><MapPin size={14} /> Par {job.profiles?.full_name || 'Client Anonyme'}</span>
                     </div>
-                    {appliedJobIds.includes(job.id) ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontWeight: 'bold' }}>
-                        <CheckCircle2 size={18} /> Proposition envoyée
-                      </div>
-                    ) : (
-                      <button onClick={() => handleOpenProposal(job)} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Faire une proposition</button>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {profile?.role === 'freelancer' && (
+                        <button onClick={() => handleContactClient(job)} className="btn btn-outline" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <MessageSquare size={16} /> Contacter
+                        </button>
+                      )}
+                      {appliedJobIds.includes(job.id) ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontWeight: 'bold' }}>
+                          <CheckCircle2 size={18} /> Proposition envoyée
+                        </div>
+                      ) : (
+                        <button onClick={() => handleOpenProposal(job)} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Faire une proposition</button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
