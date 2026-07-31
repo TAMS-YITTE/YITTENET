@@ -2,8 +2,11 @@
 // Deploy: supabase functions deploy release-escrow
 // (SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY are injected automatically.)
 
+import Stripe from 'npm:stripe@17';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '');
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -68,14 +71,40 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // NOTE: with a Stripe Connect destination charge (see create-checkout-session),
-    // the freelancer's share was already transferred at deposit time — this only
-    // reflects that the client confirmed delivery. If funds are instead held on
-    // the platform balance, trigger a stripe.transfers.create(...) here before
-    // marking the escrow released.
+    // Stripe Connect: Transfert manuel (car on a utilisé platform charge + transfer_group)
+    const { data: freelancerProfile } = await serviceClient
+      .from('profiles')
+      .select('stripe_account_id, stripe_payouts_enabled')
+      .eq('id', escrow.freelancer_id)
+      .single();
+
+    if (!freelancerProfile?.stripe_account_id || !freelancerProfile?.stripe_payouts_enabled) {
+      return new Response(JSON.stringify({ error: "Le prestataire n'a pas configuré ses paiements Stripe." }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const amountInCents = Math.round(Number(escrow.amount) * 100);
+    const platformFee = escrow.platform_fee || 0;
+    const netAmount = amountInCents - platformFee;
+
+    let transferId = null;
+    if (netAmount > 0) {
+      const transfer = await stripe.transfers.create({
+        amount: netAmount,
+        currency: 'eur',
+        destination: freelancerProfile.stripe_account_id,
+        transfer_group: `job_${jobId}`,
+      }, {
+        idempotencyKey: `release_${escrow.id}`,
+      });
+      transferId = transfer.id;
+    }
+
     await serviceClient
       .from('escrow_transactions')
-      .update({ status: 'released' })
+      .update({ status: 'released', stripe_transfer_id: transferId })
       .eq('id', escrow.id);
 
     await serviceClient

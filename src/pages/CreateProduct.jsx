@@ -46,7 +46,7 @@ const CreateProduct = () => {
         throw new Error("Le prix doit être un nombre positif.");
       }
 
-      const { data, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('digital_products')
         .insert({
           freelancer_id: user.id,
@@ -166,7 +166,7 @@ const CreateProduct = () => {
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Ce lien sera révélé uniquement aux acheteurs après paiement.</span>
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1rem 0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '1rem 0' }} />
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
             <button type="button" className="btn btn-outline" onClick={() => navigate('/dashboard')} disabled={loading}>

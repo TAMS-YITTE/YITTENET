@@ -3,10 +3,12 @@ import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Sparkles, CheckCircle2, User, ArrowRight, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { getOrCreateConversation } from '../lib/chat';
 
 const JobMatches = () => {
   const { id: jobId } = useParams();
+  const { addToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -27,7 +29,7 @@ const JobMatches = () => {
     });
     if (error) {
       console.error('Ouverture conversation impossible:', error.message);
-      alert("Impossible d'ouvrir la conversation pour le moment.");
+      addToast("Impossible d'ouvrir la conversation pour le moment.", "error");
       return;
     }
     navigate(`/messages/${data.id}`);

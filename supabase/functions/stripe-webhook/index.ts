@@ -41,13 +41,16 @@ Deno.serve(async (req) => {
     const isDigitalProduct = session.metadata?.type === 'digital_product';
 
     if (isDigitalProduct) {
+      const platformFee = session.metadata.platform_fee ? parseInt(session.metadata.platform_fee, 10) : null;
+      
       const { error: purchaseError } = await serviceClient
         .from('purchases')
         .insert({
           client_id: session.metadata.client_id,
           product_id: session.metadata.product_id,
           stripe_payment_id: session.payment_intent,
-          status: 'completed'
+          status: 'completed',
+          platform_fee: platformFee
         });
       if (purchaseError) {
          console.error('Error inserting purchase:', purchaseError);

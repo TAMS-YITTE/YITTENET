@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Briefcase, Zap, Cpu, Code2 } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
 
 // Layout Components

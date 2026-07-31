@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { ShoppingCart, ShieldCheck, FileDown, Lock, Star } from 'lucide-react';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { addToast } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [purchaseStatus, setPurchaseStatus] = useState(null);
-  const [checkingPurchase, setCheckingPurchase] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -66,7 +67,6 @@ const ProductDetails = () => {
       console.error(err);
     } finally {
       setLoading(false);
-      setCheckingPurchase(false);
     }
   };
 
@@ -76,7 +76,7 @@ const ProductDetails = () => {
       return;
     }
     if (profile?.role !== 'client') {
-      alert("Seul un compte Client peut acheter des produits.");
+      addToast("Seul un compte Client peut acheter des produits.", "error");
       return;
     }
     try {
@@ -85,12 +85,11 @@ const ProductDetails = () => {
       });
 
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (!data?.url) throw new Error("URL de paiement non générée.");
+      
+      window.location.href = data.url;
     } catch (err) {
-      console.error(err);
-      alert("Erreur lors de la création du paiement: " + err.message);
+      addToast("Erreur lors de la création du paiement : " + err.message, "error");
     }
   };
 
@@ -166,7 +165,7 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          <div style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <div style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>Créé par {product.profiles?.full_name}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{product.profiles?.bio || "Expert YITTE"}</p>
           </div>
@@ -184,7 +183,7 @@ const ProductDetails = () => {
                 <ShieldCheck size={32} color="#10B981" style={{ margin: '0 auto 1rem' }} />
                 <h3 style={{ color: '#065F46', marginBottom: '1rem' }}>Produit Débloqué</h3>
                 <a 
-                  href={product.asset_url} 
+                  href={product.file_url} 
                   target="_blank" 
                   rel="noreferrer"
                   className="btn btn-primary" 
@@ -220,7 +219,7 @@ const ProductDetails = () => {
           <form onSubmit={handleSubmitReview} style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border-color)' }}>
             <p style={{ fontWeight: 600, marginBottom: '0.75rem' }}>Vous avez acheté ce produit — laissez votre avis :</p>
             {reviewError && (
-              <div style={{ color: 'var(--domain-genai-color)', marginBottom: '0.75rem', fontSize: '0.9rem' }}>{reviewError}</div>
+              <div style={{ color: 'var(--domain-genai)', marginBottom: '0.75rem', fontSize: '0.9rem' }}>{reviewError}</div>
             )}
             <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.75rem' }}>
               {[1, 2, 3, 4, 5].map((n) => (

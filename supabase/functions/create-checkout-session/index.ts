@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
 
     const { data: freelancerProfile } = await serviceClient
       .from('profiles')
-      .select('stripe_account_id')
+      .select('stripe_account_id, is_premium')
       .eq('id', escrow.freelancer_id)
       .single();
 
@@ -99,21 +99,22 @@ Deno.serve(async (req) => {
       cancel_url: `${siteUrl}/dashboard?payment=cancelled`,
     };
 
-    // Stripe Connect destination charge — only once the freelancer has gone
-    // through Connect onboarding (stripe_account_id set on their profile).
-    // That onboarding flow isn't built yet; until then this falls back to a
-    // plain platform charge with no automatic payout split.
-    if (freelancerProfile?.stripe_account_id) {
-      sessionParams.payment_intent_data = {
-        transfer_data: { destination: freelancerProfile.stripe_account_id },
-      };
-    }
+    const commissionRate = freelancerProfile?.is_premium ? 0.05 : 0.10;
+    const platformFeeCents = Math.round(amountInCents * commissionRate);
+    
+    sessionParams.payment_intent_data = {
+      transfer_group: `job_${escrow.job_id}`
+    };
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     await serviceClient
       .from('escrow_transactions')
-      .update({ stripe_checkout_session_id: session.id })
+      .update({ 
+        stripe_checkout_session_id: session.id,
+        commission_rate: commissionRate,
+        platform_fee: platformFeeCents
+      })
       .eq('id', escrow.id);
 
     return new Response(JSON.stringify({ url: session.url }), {

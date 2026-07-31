@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, Clock, CheckCircle2, AlertCircle, Lock, X, UploadCloud, Wallet, Star, ShoppingBag, FileDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -39,6 +41,21 @@ const Dashboard = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
 
   const paymentBanner = searchParams.get('payment');
+  const stripeOnboarding = searchParams.get('stripe_onboarding');
+  const [stripeLoading, setStripeLoading] = useState(false);
+
+  useEffect(() => {
+    if (stripeOnboarding === 'success' && !stripeLoading) {
+      setStripeLoading(true);
+      supabase.functions.invoke('refresh-connect-status')
+        .then(() => {
+          setSearchParams({});
+          window.location.reload();
+        })
+        .catch(err => console.error(err))
+        .finally(() => setStripeLoading(false));
+    }
+  }, [stripeOnboarding, searchParams, setSearchParams, stripeLoading]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -93,14 +110,40 @@ const Dashboard = () => {
 
       } else {
         // Freelancer: fetch their products
-        setJobs([]);
-        
         const { data: productsData } = await supabase
           .from('digital_products')
           .select('*')
           .eq('freelancer_id', user.id)
           .order('created_at', { ascending: false });
         if (productsData) setMyProducts(productsData);
+
+        // Fetch jobs where freelancer is involved via escrow
+        const { data: freelancerJobs } = await supabase
+          .from('escrow_transactions')
+          .select(`
+            id,
+            status,
+            amount,
+            platform_fee,
+            job:jobs!escrow_transactions_job_id_fkey(
+              id, title, domain, budget, deadline, status, created_at,
+              client_id,
+              reviews (*)
+            )
+          `)
+          .eq('freelancer_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (freelancerJobs) {
+          // Format the jobs array to match the client view structure
+          const formattedJobs = freelancerJobs.map(escrow => ({
+            ...escrow.job,
+            escrow_transactions: [escrow]
+          }));
+          setJobs(formattedJobs);
+        } else {
+          setJobs([]);
+        }
       }
     } catch (err) {
       console.error("Erreur lors de la récupération des données:", err);
@@ -126,9 +169,9 @@ const Dashboard = () => {
       if (error) throw error;
       setIsEditingProfile(false);
       // In a real app we would update the AuthContext profile here too
-      alert('Profil mis à jour avec succès !');
+      addToast('Profil mis à jour avec succès !', 'success');
     } catch (err) {
-      alert("Erreur lors de la mise à jour : " + err.message);
+      addToast("Erreur lors de la mise à jour : " + err.message, "error");
     }
   };
 
@@ -136,6 +179,32 @@ const Dashboard = () => {
     setEscrowError('');
     setPayingProposalId(proposal.id);
     try {
+      // Check for existing escrow for this job_id first
+      const { data: existingEscrow, error: lookupError } = await supabase
+        .from('escrow_transactions')
+        .select('*')
+        .eq('job_id', job.id)
+        .maybeSingle();
+
+      if (lookupError) throw lookupError;
+
+      if (existingEscrow) {
+        if (existingEscrow.status === 'pending') {
+          // Reuse existing pending escrow
+          const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', {
+            body: { escrowTransactionId: existingEscrow.id }
+          });
+          if (fnError) throw fnError;
+          if (!data?.url) throw new Error("Impossible de générer le lien de paiement.");
+          window.location.href = data.url;
+          return;
+        }
+        if (existingEscrow.status === 'deposited' || existingEscrow.status === 'released') {
+          throw new Error("Paiement déjà effectué pour cette mission.");
+        }
+      }
+
+      // No existing escrow, create new one
       const { data: escrow, error: escrowInsertError } = await supabase
         .from('escrow_transactions')
         .insert({
@@ -143,7 +212,8 @@ const Dashboard = () => {
           proposal_id: proposal.id,
           client_id: user.id,
           freelancer_id: proposal.freelancer_id,
-          amount: proposal.amount
+          amount: proposal.amount,
+          status: 'pending'
         })
         .select()
         .single();
@@ -164,43 +234,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleAcceptAndPayHub2 = async (job, proposal) => {
-    setEscrowError('');
-    setPayingProposalId(proposal.id);
-    try {
-      const { data: escrow, error: escrowInsertError } = await supabase
-        .from('escrow_transactions')
-        .insert({
-          job_id: job.id,
-          proposal_id: proposal.id,
-          amount: proposal.amount,
-          status: 'pending',
-          client_id: user.id,
-          freelancer_id: proposal.freelancer_id
-        })
-        .select()
-        .single();
-
-      if (escrowInsertError) {
-        if (escrowInsertError.code === '23505') {
-          throw new Error("Un paiement est déjà en cours pour cette mission.");
-        }
-        throw escrowInsertError;
-      }
-
-      const { data, error: fnError } = await supabase.functions.invoke('create-hub2-checkout', {
-        body: { escrowTransactionId: escrow.id }
-      });
-
-      if (fnError) throw fnError;
-      if (!data?.url) throw new Error("Impossible de générer le lien de paiement Hub2.");
-
-      window.location.href = data.url;
-    } catch (err) {
-      setEscrowError(err.message);
-      setPayingProposalId(null);
-    }
-  };
 
   const handleReleaseEscrow = async (job) => {
     setEscrowError('');
@@ -280,6 +313,46 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Stripe Connect Integration */}
+      {profile?.role === 'freelancer' && (
+        <div className="card" style={{ marginBottom: '2rem', borderLeft: '4px solid #635BFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Wallet size={20} color="#635BFF" /> Configuration des Paiements (Stripe)
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                Requis pour recevoir les fonds des missions en séquestre et de vos ventes.
+              </p>
+            </div>
+            <div>
+              {profile.stripe_payouts_enabled ? (
+                <span className="badge" style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--status-success)' }}>
+                  <CheckCircle2 size={14} /> Actif
+                </span>
+              ) : (
+                <span className="badge" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: 'var(--domain-genai-color)' }}>
+                  <AlertCircle size={14} /> Configuration requise
+                </span>
+              )}
+            </div>
+          </div>
+          {!profile.stripe_payouts_enabled && (
+             <div style={{ marginTop: '1rem' }}>
+               <button 
+                 onClick={async () => {
+                    const { data, error } = await supabase.functions.invoke('create-connect-account');
+                    if (data?.url) window.location.href = data.url;
+                    if (error) addToast(error.message, "error");
+                 }}
+                 className="btn btn-primary" style={{ backgroundColor: '#635BFF', borderColor: '#635BFF', color: 'white' }}>
+                 Configurer mes paiements
+               </button>
+             </div>
+          )}
+        </div>
+      )}
+
       {/* KYC Alert for Freelancers */}
       {profile?.role === 'freelancer' && !isVerified && (
         <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #F87171', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -317,6 +390,7 @@ const Dashboard = () => {
                     <option value="web3">Web3 & Blockchain</option>
                     <option value="genai">IA Générative</option>
                     <option value="nocode">No-Code</option>
+                    <option value="legaltech">LegalTech</option>
                   </select>
                 </div>
                 <div>
@@ -471,14 +545,6 @@ const Dashboard = () => {
                         disabled={payingProposalId === prop.id}
                       >
                         {payingProposalId === prop.id ? 'Redirection...' : 'Payer par Carte (Stripe)'}
-                      </button>
-                      <button
-                        onClick={() => handleAcceptAndPayHub2(job, prop)}
-                        className="btn btn-outline"
-                        style={{ flex: 1, backgroundColor: '#FF7900', color: '#fff', borderColor: '#FF7900' }}
-                        disabled={payingProposalId === prop.id}
-                      >
-                        {payingProposalId === prop.id ? 'Redirection...' : 'Payer via Mobile Money (Hub2)'}
                       </button>
                     </div>
                   </div>

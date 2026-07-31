@@ -49,7 +49,7 @@ const CookieBanner = () => {
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
           YITTE utilise des cookies pour assurer le bon fonctionnement de la plateforme (session, sécurité) 
           et analyser le trafic (statistiques anonymes). Vous pouvez personnaliser vos choix. 
-          Pour en savoir plus, consultez notre <Link to="/legal" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Politique de confidentialité</Link>.
+          Pour en savoir plus, consultez notre <Link to="/confidentialite" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Politique de confidentialité</Link>.
         </p>
       </div>
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

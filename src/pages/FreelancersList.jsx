@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShieldCheck, Star, User, Crown, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 const FreelancersList = () => {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const [freelancers, setFreelancers] = useState([]);
@@ -68,7 +70,7 @@ const FreelancersList = () => {
     
     try {
       // 1. Check if conversation already exists
-      const { data: existing, error: searchError } = await supabase
+      const { data: existing, error: _searchError } = await supabase
         .from('conversations')
         .select('id')
         .eq('client_id', user.id)
@@ -81,7 +83,7 @@ const FreelancersList = () => {
       }
 
       // 2. Create new conversation
-      const { data: newConv, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('conversations')
         .insert({
           client_id: user.id,
@@ -94,7 +96,7 @@ const FreelancersList = () => {
       navigate('/messages');
     } catch (err) {
       console.error('Erreur chat:', err);
-      alert('Impossible de démarrer la conversation.');
+      addToast('Impossible de démarrer la conversation.', 'error');
     }
   };
 
@@ -132,7 +134,7 @@ const FreelancersList = () => {
         >Web3</button>
         <button 
           className={`btn ${filter === 'genai' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ borderColor: filter === 'genai' ? 'var(--domain-genai-color)' : undefined }}
+          style={{ borderColor: filter === 'genai' ? 'var(--domain-genai)' : undefined }}
           onClick={() => setFilter('genai')}
         >IA Générative</button>
         <button 
@@ -184,7 +186,7 @@ const FreelancersList = () => {
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem', flex: 1 }}>
                 {(freelancer.skills || []).map(skill => (
-                  <span key={skill} style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--text-main)' }}>
+                  <span key={skill} style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--text-main)' }}>
                     {skill}
                   </span>
                 ))}

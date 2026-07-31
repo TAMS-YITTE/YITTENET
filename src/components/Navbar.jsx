@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogOut, LayoutDashboard, MessageSquare, Crown, Bell } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Crown, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -145,9 +145,6 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-              <Link to="/messages" className="btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }} title="Messagerie">
-                <MessageSquare size={20} />
-              </Link>
               <Link to="/dashboard" className="btn btn-outline" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <LayoutDashboard size={18} /> Tableau de bord
               </Link>

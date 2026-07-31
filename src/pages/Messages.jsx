@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Send, User } from 'lucide-react';
 
 const Messages = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { conversationId } = useParams();
   const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -71,7 +73,12 @@ const Messages = () => {
       setConversations(data || []);
       
       if (data && data.length > 0 && !activeConv) {
-        setActiveConv(data[0]);
+        if (conversationId) {
+          const found = data.find(c => c.id === conversationId);
+          setActiveConv(found || data[0]);
+        } else {
+          setActiveConv(data[0]);
+        }
       }
     } catch (err) {
       console.error('Erreur conversations:', err);
@@ -117,11 +124,11 @@ const Messages = () => {
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem', height: 'calc(100vh - 80px)' }}>
-      <div style={{ display: 'flex', height: '100%', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-card)' }}>
+      <div style={{ display: 'flex', height: '100%', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-card)' }}>
         
         {/* Left Col: Conversations List */}
-        <div style={{ width: '300px', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', fontWeight: 'bold' }}>
+        <div style={{ width: '300px', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold' }}>
             Mes Conversations
           </div>
           <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -141,7 +148,7 @@ const Messages = () => {
                     onClick={() => setActiveConv(conv)}
                     style={{
                       padding: '1rem',
-                      borderBottom: '1px solid var(--border)',
+                      borderBottom: '1px solid var(--border-color)',
                       cursor: 'pointer',
                       backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
                       borderLeft: isActive ? '3px solid var(--primary)' : '3px solid transparent',
@@ -162,7 +169,7 @@ const Messages = () => {
           {activeConv ? (
             <>
               {/* Chat Header */}
-              <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <User size={20} color="var(--primary)" />
                 <span style={{ fontWeight: 'bold' }}>
                   {activeConv.client_id === user.id ? activeConv.freelancer?.full_name : activeConv.client?.full_name}
@@ -181,7 +188,7 @@ const Messages = () => {
                       borderRadius: '12px',
                       backgroundColor: isMe ? 'var(--primary)' : 'var(--bg-card)',
                       color: isMe ? 'white' : 'var(--text-main)',
-                      border: isMe ? 'none' : '1px solid var(--border)',
+                      border: isMe ? 'none' : '1px solid var(--border-color)',
                       boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                     }}>
                       <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>{msg.content}</div>
@@ -195,14 +202,14 @@ const Messages = () => {
               </div>
 
               {/* Input Area */}
-              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-card)', borderTop: '1px solid var(--border)' }}>
+              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-card)', borderTop: '1px solid var(--border-color)' }}>
                 <form onSubmit={sendMessage} style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Écrivez un message..."
-                    style={{ flex: 1, padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}
+                    style={{ flex: 1, padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}
                   />
                   <button type="submit" className="btn btn-primary" style={{ padding: '0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Send size={18} />

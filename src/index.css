@@ -196,3 +196,15 @@ p { color: var(--text-muted); }
 .grad-web3 { background-image: linear-gradient(90deg, #00F0FF, #0070F3); }
 .grad-genai { background-image: linear-gradient(90deg, #E94057, #8A2387); }
 .grad-nocode { background-image: linear-gradient(90deg, #10B981, #047857); }
+
+/* ===== DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0F172A;
+    --bg-card: #1E293B;
+    --bg-card-hover: #334155;
+    --text-main: #F1F5F9;
+    --text-muted: #94A3B8;
+    --border-color: #334155;
+  }
+}

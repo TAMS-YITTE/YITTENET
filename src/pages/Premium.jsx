@@ -72,7 +72,7 @@ const Premium = () => {
       </div>
 
       {errorMsg && (
-        <div style={{ padding: '1rem', backgroundColor: 'rgba(233,64,87,0.1)', color: 'var(--domain-genai-color)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(233,64,87,0.2)' }}>
+        <div style={{ padding: '1rem', backgroundColor: 'rgba(233,64,87,0.1)', color: 'var(--domain-genai)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(233,64,87,0.2)' }}>
           {errorMsg}
         </div>
       )}

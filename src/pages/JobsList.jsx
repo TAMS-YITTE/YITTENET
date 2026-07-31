@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Filter, Clock, MapPin, X, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Filter, Clock, MapPin, X, CheckCircle2, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { getOrCreateConversation } from '../lib/chat';
 
 const JobsList = () => {
   const { user, profile } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
@@ -80,7 +82,7 @@ const JobsList = () => {
       return;
     }
     if (profile?.role !== 'freelancer') {
-      alert("Vous devez être connecté avec un compte Freelance pour faire une proposition.");
+      addToast("Vous devez être connecté avec un compte Freelance pour faire une proposition.", "error");
       return;
     }
     setSelectedJob(job);
@@ -123,7 +125,7 @@ const JobsList = () => {
       return;
     }
     if (profile?.role !== 'freelancer') {
-      alert('Vous devez être connecté avec un compte Freelance pour contacter un client.');
+      addToast('Vous devez être connecté avec un compte Freelance pour contacter un client.', "error");
       return;
     }
     const { data, error } = await getOrCreateConversation({
@@ -133,7 +135,7 @@ const JobsList = () => {
     });
     if (error) {
       console.error('Ouverture conversation impossible:', error.message);
-      alert("Impossible d'ouvrir la conversation pour le moment.");
+      addToast("Impossible d'ouvrir la conversation pour le moment.", "error");
       return;
     }
     navigate(`/messages/${data.id}`);
@@ -184,7 +186,7 @@ const JobsList = () => {
               <input type="radio" name="domain" checked={filter === 'web3'} onChange={() => setFilter('web3')} />
               Web3 & Blockchain
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--domain-genai-color)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--domain-genai)' }}>
               <input type="radio" name="domain" checked={filter === 'genai'} onChange={() => setFilter('genai')} />
               IA Générative
             </label>

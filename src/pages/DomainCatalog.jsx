@@ -25,17 +25,17 @@ const domainData = {
   },
   genai: {
     title: 'IA Générative',
-    color: 'var(--domain-genai-color)',
+    color: 'var(--domain-genai)',
     bg: 'var(--domain-genai-bg)',
     gradClass: 'grad-genai',
     badgeClass: 'badge-genai',
     jobs: [
-      { id: 1, title: 'Agents IA / Chatbots', desc: 'Service client ou automatisation interne.', icon: <MessageSquare size={32} color="var(--domain-genai-color)" /> },
-      { id: 2, title: 'Intégration d\'un LLM', desc: 'API OpenAI, Claude dans une app existante.', icon: <Cpu size={32} color="var(--domain-genai-color)" /> },
-      { id: 3, title: 'Création de contenu', desc: 'Textes, visuels, vidéos automatisées.', icon: <FileText size={32} color="var(--domain-genai-color)" /> },
-      { id: 4, title: 'Mise en place de RAG', desc: 'Recherche augmentée sur vos documents internes.', icon: <Database size={32} color="var(--domain-genai-color)" /> },
-      { id: 5, title: 'Fine-tuning de modèle', desc: 'Entraînement sur des données spécifiques métier.', icon: <Settings2 size={32} color="var(--domain-genai-color)" /> },
-      { id: 6, title: 'Automatisation IA', desc: 'Tri d\'emails, résumé, reporting automatisé.', icon: <GitBranch size={32} color="var(--domain-genai-color)" /> },
+      { id: 1, title: 'Agents IA / Chatbots', desc: 'Service client ou automatisation interne.', icon: <MessageSquare size={32} color="var(--domain-genai)" /> },
+      { id: 2, title: 'Intégration d\'un LLM', desc: 'API OpenAI, Claude dans une app existante.', icon: <Cpu size={32} color="var(--domain-genai)" /> },
+      { id: 3, title: 'Création de contenu', desc: 'Textes, visuels, vidéos automatisées.', icon: <FileText size={32} color="var(--domain-genai)" /> },
+      { id: 4, title: 'Mise en place de RAG', desc: 'Recherche augmentée sur vos documents internes.', icon: <Database size={32} color="var(--domain-genai)" /> },
+      { id: 5, title: 'Fine-tuning de modèle', desc: 'Entraînement sur des données spécifiques métier.', icon: <Settings2 size={32} color="var(--domain-genai)" /> },
+      { id: 6, title: 'Automatisation IA', desc: 'Tri d\'emails, résumé, reporting automatisé.', icon: <GitBranch size={32} color="var(--domain-genai)" /> },
     ]
   },
   nocode: {
@@ -55,17 +55,17 @@ const domainData = {
   },
   legaltech: {
     title: 'LegalTech & Conformité',
-    color: 'var(--domain-genai-color)', // On réutilise une couleur existante pour l'instant
+    color: 'var(--domain-genai)', // On réutilise une couleur existante pour l'instant
     bg: 'var(--domain-genai-bg)',
     gradClass: 'grad-genai',
     badgeClass: 'badge-genai',
     jobs: [
-      { id: 1, title: 'Contrats & CGV', desc: 'Rédaction de CGV, contrats de prestation, NDA, licences.', icon: <ScrollText size={32} color="var(--domain-genai-color)" /> },
-      { id: 2, title: 'Mise en conformité RGPD', desc: 'Audit, registre de traitement, politiques de confidentialité.', icon: <ShieldCheck size={32} color="var(--domain-genai-color)" /> },
-      { id: 3, title: 'KYC & Vérification', desc: 'Intégration Stripe Identity, vérification d\'identité.', icon: <UserCheck size={32} color="var(--domain-genai-color)" /> },
-      { id: 4, title: 'Due Diligence startup', desc: 'Analyse de risques, conformité levée de fonds, data room.', icon: <FileDigit size={32} color="var(--domain-genai-color)" /> },
-      { id: 5, title: 'Régulation crypto / PSAN', desc: 'Analyse juridique du token, enregistrement AMF, statut PSAN.', icon: <Coins size={32} color="var(--domain-genai-color)" /> },
-      { id: 6, title: 'Mentions légales & cookies', desc: 'Génération et mise à jour des pages légales obligatoires.', icon: <FileText size={32} color="var(--domain-genai-color)" /> },
+      { id: 1, title: 'Contrats & CGV', desc: 'Rédaction de CGV, contrats de prestation, NDA, licences.', icon: <ScrollText size={32} color="var(--domain-genai)" /> },
+      { id: 2, title: 'Mise en conformité RGPD', desc: 'Audit, registre de traitement, politiques de confidentialité.', icon: <ShieldCheck size={32} color="var(--domain-genai)" /> },
+      { id: 3, title: 'KYC & Vérification', desc: 'Intégration Stripe Identity, vérification d\'identité.', icon: <UserCheck size={32} color="var(--domain-genai)" /> },
+      { id: 4, title: 'Due Diligence startup', desc: 'Analyse de risques, conformité levée de fonds, data room.', icon: <FileDigit size={32} color="var(--domain-genai)" /> },
+      { id: 5, title: 'Régulation crypto / PSAN', desc: 'Analyse juridique du token, enregistrement AMF, statut PSAN.', icon: <Coins size={32} color="var(--domain-genai)" /> },
+      { id: 6, title: 'Mentions légales & cookies', desc: 'Génération et mise à jour des pages légales obligatoires.', icon: <FileText size={32} color="var(--domain-genai)" /> },
     ]
   }
 };

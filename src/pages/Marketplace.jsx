@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ShoppingBag, Search, Tag, User } from 'lucide-react';
+import { ShoppingBag, User } from 'lucide-react';
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
@@ -64,7 +64,7 @@ const Marketplace = () => {
             style={{
               padding: '0.5rem 1.5rem',
               borderRadius: '30px',
-              border: filter === cat.id ? '2px solid var(--primary)' : '1px solid var(--border)',
+              border: filter === cat.id ? '2px solid var(--primary)' : '1px solid var(--border-color)',
               backgroundColor: filter === cat.id ? 'var(--primary)' : 'transparent',
               color: filter === cat.id ? 'white' : 'var(--text-main)',
               cursor: 'pointer',
@@ -126,7 +126,7 @@ const Marketplace = () => {
                   {product.description}
                 </p>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                   <User size={16} />
                   <span>Créé par <strong>{product.profiles?.full_name}</strong></span>
                 </div>

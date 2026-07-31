@@ -4,16 +4,16 @@ import { supabase } from './supabase';
 // avec la clé API DeepSeek, pour ne rien exposer dans le bundle client.
 
 // Helper pour extraire le JSON de la réponse du LLM
-const parseAIResponse = (text) => {
+export const parseAIResponse = (text) => {
   try {
     // 1. Essayer de trouver le bloc JSON via les backticks
-    const jsonMatch = text.match(/\`\`\`json\s*(\{[\s\S]*?\})\s*\`\`\`/);
+    const jsonMatch = text.match(/```json\s*(\{[\s\S]*?\})\s*```/);
     let metadataStr = null;
     let brief = text;
 
     if (jsonMatch && jsonMatch[1]) {
       metadataStr = jsonMatch[1];
-      brief = text.replace(/\`\`\`json\s*\{[\s\S]*?\}\s*\`\`\`/, '').replace(/---[\s\n]*BLOC TECHNIQUE.*$/, '').trim();
+      brief = text.replace(/```json\s*\{[\s\S]*?\}\s*```/, '').replace(/---[\s\n]*BLOC TECHNIQUE.*$/, '').trim();
     } else {
       // 2. Si le LLM n'a pas mis les backticks, on cherche de '{' jusqu'à la fin après le séparateur '---'
       const separatorIndex = text.lastIndexOf('---');
