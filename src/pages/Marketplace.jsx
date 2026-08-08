@@ -31,7 +31,39 @@ const Marketplace = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      setProducts(data || []);
+      
+      const fallbackProducts = [
+        {
+          id: 'medl-smart-contract',
+          category: 'web3',
+          title: 'Smart Contract MEDL (Code Source)',
+          description: 'Smart contract identique à celui en production, certifié et audité. Idéal pour lancer votre marketplace ou plateforme de leasing. (Réf: C:\\Users\\hp\\MedLease_Production)',
+          price: 750,
+          profiles: { full_name: 'Yitte Expert' }
+        },
+        {
+          id: 'template-chatbot',
+          category: 'nocode',
+          title: 'Template ChatbotEmbed',
+          description: 'Template complet prêt à l\'emploi pour intégrer un chatbot IA sur mesure sur n\'importe quel site web. Configuration ultra-rapide.',
+          price: 49,
+          profiles: { full_name: 'Yitte Expert' }
+        },
+        {
+          id: 'template-resume',
+          category: 'nocode',
+          title: 'Template ResumeScanner',
+          description: 'Outil complet d\'analyse de CV boosté par l\'IA. Automatisez le tri des candidatures. Code source et interface inclus.',
+          price: 89,
+          profiles: { full_name: 'Yitte Expert' }
+        }
+      ];
+
+      // On applique le filtre localement si on utilise le fallback
+      const finalProducts = (data && data.length > 0) ? data : fallbackProducts;
+      const filteredFinal = filter === 'all' ? finalProducts : finalProducts.filter(p => p.category === filter);
+      
+      setProducts(filteredFinal);
     } catch (error) {
       console.error('Erreur lors du chargement des produits:', error);
     } finally {
