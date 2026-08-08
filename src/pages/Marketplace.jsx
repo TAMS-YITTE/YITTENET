@@ -36,8 +36,8 @@ const Marketplace = () => {
         {
           id: 'medl-smart-contract',
           category: 'web3',
-          title: 'Smart Contract MEDL (Code Source)',
-          description: 'Smart contract certifié et audité. Idéal pour lancer votre token, presale ou contrat de staking.',
+          title: 'Smart Contrat',
+          description: 'Smart contrat audité (comme MEDL). Idéal pour lancer votre token, presale ou contrat de staking.',
           price: 750,
           profiles: { full_name: 'Yitte Expert' }
         },

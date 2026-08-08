@@ -172,7 +172,8 @@ const PRODUITS = [
     douleur: 'Piloter les approvisionnements, les stocks et les expéditions de bout en bout avec des alertes sur les ruptures.',
     prix: 'À partir de 79 €/mois',
     url: 'https://supply.yitte.net',
-    statut: 'bientot',
+    statut: 'en_ligne',
+    teteDeGondole: true,
   },
   {
     id: 'creditmanagement',
@@ -199,7 +200,8 @@ const PRODUITS = [
     douleur: 'Gérer les demandes clients, les prestataires externes et la facturation avec un suivi temps réel.',
     prix: 'À partir de 59 €/mois',
     url: 'https://concierge.yitte.net',
-    statut: 'bientot',
+    statut: 'en_ligne',
+    teteDeGondole: true,
   },
   {
     id: 'agenda',
@@ -309,13 +311,11 @@ const Carte = ({ produit }) => {
 
         {enLigne ? (
           <a
-            href={produit.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={`mailto:contact@yitte.net?subject=Demande concernant ${produit.nom}`}
             className="btn btn-primary"
             style={{ padding: '0.6rem 1.1rem', fontSize: '0.9rem' }}
           >
-            Découvrir la solution
+            Nous contacter
             <ArrowUpRight size={16} />
           </a>
         ) : (
