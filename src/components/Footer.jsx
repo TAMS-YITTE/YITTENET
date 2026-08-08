@@ -47,6 +47,14 @@ const Footer = () => {
           </ul>
         </div>
 
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Contact</h4>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <li><a href="mailto:contact@yitte.net" style={{ color: 'var(--text-muted)' }}>contact@yitte.net</a></li>
+            <li style={{ color: 'var(--text-muted)' }}>Lun - Ven, 9h-18h</li>
+          </ul>
+        </div>
+
       </div>
       <div className="container" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
         &copy; {new Date().getFullYear()} YITTE. Tous droits réservés. Prototype.

@@ -3,11 +3,12 @@
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   
   /* Colors - Base (Light Theme) */
-  --bg-color: #F8FAFC;
+  --bg-color: #FAFAFA;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
+  --bg-card-hover: #F8FAFC;
+  --bg-nav: rgba(255, 255, 255, 0.85);
   --text-main: #0F172A;
-  --text-muted: #64748B;
+  --text-muted: #475569;
   --border-color: #E2E8F0;
   
   /* Colors - Primary (Trust/Brand) */
@@ -66,16 +67,17 @@ button {
 
 /* Typography Helpers */
 h1, h2, h3, h4 {
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 700;
+  line-height: 1.15;
   color: var(--text-main);
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: 3rem; margin-bottom: 1rem; }
-h2 { font-size: 2rem; margin-bottom: 1rem; }
+h1 { font-size: 3.2rem; margin-bottom: 1.25rem; }
+h2 { font-size: 2.25rem; margin-bottom: 1rem; }
 h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
 
-p { color: var(--text-muted); }
+p { color: var(--text-muted); line-height: 1.6; }
 
 /* Layout Helpers */
 .container {
@@ -120,15 +122,15 @@ p { color: var(--text-muted); }
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 1.5rem;
+  padding: 1.75rem;
   transition: var(--transition);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
 }
 
 .card:hover {
-  border-color: var(--primary);
+  border-color: rgba(59, 130, 246, 0.3);
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.08);
 }
 
 /* Badges */
@@ -200,11 +202,12 @@ p { color: var(--text-muted); }
 /* ===== DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #0F172A;
-    --bg-card: #1E293B;
-    --bg-card-hover: #334155;
-    --text-main: #F1F5F9;
+    --bg-color: #0B1121;
+    --bg-card: #151E32;
+    --bg-card-hover: #1E293B;
+    --bg-nav: rgba(11, 17, 33, 0.85);
+    --text-main: #F8FAFC;
     --text-muted: #94A3B8;
-    --border-color: #334155;
+    --border-color: #1E293B;
   }
 }

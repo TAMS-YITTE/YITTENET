@@ -73,11 +73,12 @@ const Navbar = () => {
       position: 'fixed',
       top: 0,
       width: '100%',
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(10px)',
+      backgroundColor: 'var(--bg-nav)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-color)',
       zIndex: 50,
-      padding: '1rem 0'
+      padding: '1.25rem 0'
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
@@ -90,22 +91,16 @@ const Navbar = () => {
         </Link>
 
         {/* Links */}
-        <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           <Link to="/jobs" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Missions</Link>
           <Link to="/freelancers" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Prestataires</Link>
-          <Link to="/marketplace" style={{ color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>Boutique</Link>
-          <Link to="/logiciels" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>
-            <Layers size={16} /> Nos Logiciels
-          </Link>
-          <Link to="/solutions" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>
-            <Sparkles size={16} /> Solutions
-          </Link>
+          <Link to="/marketplace" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Boutique</Link>
+          <Link to="/logiciels" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Nos Logiciels</Link>
+          <Link to="/solutions" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Solutions</Link>
+          
           {user && (
             <Link to="/messages" style={{ color: 'var(--text-main)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Messagerie</Link>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-success)', fontSize: '0.875rem' }}>
-            <ShieldCheck size={16} /> Paiement Séquestre
-          </div>
         </div>
 
         {/* Actions */}
