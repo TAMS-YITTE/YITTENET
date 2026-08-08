@@ -82,11 +82,11 @@ const Marketplace = () => {
   return (
     <div className="container" style={{ padding: '2rem' }}>
       <SEO 
-        title="Outils & Templates — YITTENET" 
+        title="Outils — YITTENET" 
         description="Achetez des templates, plugins, scripts et formations créés par les meilleurs experts de la communauté YITTENET."
       />
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Outils & Templates</h1>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Outils</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
           Découvrez des outils, templates et smart contracts prêts à l'emploi créés par les meilleurs experts de la plateforme.
         </p>
