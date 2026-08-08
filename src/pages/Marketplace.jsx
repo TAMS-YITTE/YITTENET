@@ -37,7 +37,7 @@ const Marketplace = () => {
           id: 'medl-smart-contract',
           category: 'web3',
           title: 'Smart Contract MEDL (Code Source)',
-          description: 'Smart contract identique à celui en production, certifié et audité. Idéal pour lancer votre marketplace ou plateforme de leasing. (Réf: C:\\Users\\hp\\MedLease_Production)',
+          description: 'Smart contract certifié et audité. Idéal pour lancer votre token, presale ou contrat de staking.',
           price: 750,
           profiles: { full_name: 'Yitte Expert' }
         },
@@ -125,8 +125,8 @@ const Marketplace = () => {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {products.map((product) => (
-            <Link 
-              to={`/product/${product.id}`} 
+            <a 
+              href={`mailto:contact@yitte.net?subject=Achat Produit: ${product.title}`}
               key={product.id}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
@@ -168,7 +168,7 @@ const Marketplace = () => {
                   <span>Créé par <strong>{product.profiles?.full_name}</strong></span>
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       )}

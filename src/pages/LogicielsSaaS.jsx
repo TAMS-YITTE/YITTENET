@@ -120,10 +120,20 @@ const PRODUITS = [
     statut: 'bientot',
   },
   {
+    id: 'resto',
+    nom: 'Resto by Yitte',
+    cible: 'Restaurants, Fast-foods, Dark Kitchens',
+    douleur: "Un site de commande et de livraison à votre marque : menu, panier, paiement CB et tableau de bord des commandes en direct. Zéro commission.",
+    prix: 'À partir de 49 €/mois',
+    url: 'https://restoparis.yitte.net',
+    statut: 'en_ligne',
+    teteDeGondole: true,
+  },
+  {
     id: 'cuisine',
     nom: 'Cuisine by Yitte',
     cible: 'Restaurants et établissements alimentaires',
-    douleur: "Tenir son plan de maîtrise sanitaire autrement qu'au classeur papier, et savoir ce que chaque plat coûte réellement.",
+    douleur: "Tenir son plan de maîtrise sanitaire (HACCP) autrement qu'au classeur papier, et suivre le coût de revient. (S'intègre parfaitement avec Resto by Yitte).",
     prix: 'À partir de 49 €/mois',
     url: 'https://cuisine.yitte.net',
     statut: 'bientot',
@@ -347,16 +357,16 @@ const LogicielsSaaS = () => {
             }}
           >
             <Layers size={15} />
-            {PRODUITS.length} logiciels métier
+            {PRODUITS.length} solutions professionnelles
           </div>
 
           <h1 style={{ marginBottom: '1rem' }}>
-            Des logiciels B2B spécialisés, conçus pour la réalité du terrain
+            Des solutions B2B spécialisées, conçues pour la réalité du terrain
           </h1>
 
           <p style={{ fontSize: '1.1rem', lineHeight: 1.65 }}>
-            Un métier, un outil. Pas une suite généraliste qu'il faut plier à votre activité :
-            chaque logiciel règle une douleur précise et se vend seul, sans engagement.
+            Chaque métier a sa solution. Pas une suite généraliste qu'il faut plier à votre activité :
+            chaque outil règle une douleur précise et se vend seul, sans engagement.
           </p>
         </div>
       </section>
@@ -391,9 +401,29 @@ const LogicielsSaaS = () => {
             gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
             gap: '1.5rem',
             alignItems: 'stretch',
+            marginBottom: '4rem'
           }}
         >
-          {PRODUITS.map((produit) => (
+          {PRODUITS.filter(p => p.teteDeGondole).map((produit) => (
+            <Carte key={produit.id} produit={produit} />
+          ))}
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+          <h3 style={{ margin: 0, color: 'var(--text-muted)' }}>Prochainement disponibles</h3>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '1.5rem',
+            alignItems: 'stretch',
+          }}
+        >
+          {PRODUITS.filter(p => !p.teteDeGondole).map((produit) => (
             <Carte key={produit.id} produit={produit} />
           ))}
         </div>
