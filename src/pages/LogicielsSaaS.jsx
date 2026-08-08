@@ -123,7 +123,7 @@ const PRODUITS = [
     id: 'resto',
     nom: 'Resto by Yitte',
     cible: 'Restaurants, Fast-foods, Dark Kitchens',
-    douleur: "Un site de commande et de livraison à votre marque : menu, panier, paiement CB et tableau de bord des commandes en direct. Zéro commission.",
+    douleur: "Un site de commande et de livraison à votre marque : menu, panier, paiement CB et tableau de bord des commandes. (S'intègre parfaitement avec Cuisine by Yitte). Zéro commission.",
     prix: 'À partir de 49 €/mois',
     url: 'https://restoparis.yitte.net',
     statut: 'en_ligne',
