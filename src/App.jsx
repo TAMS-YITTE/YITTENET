@@ -23,6 +23,7 @@ import Legal from './pages/Legal';
 import Premium from './pages/Premium';
 import CreateProduct from './pages/CreateProduct';
 import LogicielsSaaS from './pages/LogicielsSaaS';
+import Solutions from './pages/Solutions';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
             <Route path="/job-matches/:id" element={<JobMatches />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/logiciels" element={<LogicielsSaaS />} />
+            <Route path="/solutions" element={<Solutions />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:conversationId" element={<Messages />} />

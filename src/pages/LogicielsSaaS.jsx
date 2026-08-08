@@ -26,6 +26,36 @@ import { ArrowUpRight, ShieldCheck, Layers, Server, Clock } from 'lucide-react';
  */
 const PRODUITS = [
   {
+    id: 'finanalyse',
+    nom: 'FinAnalyse by Yitte',
+    cible: 'Experts-comptables, analystes crédit, dirigeants',
+    douleur: "Lire un bilan en quelques minutes plutôt qu'en une demi-journée. Import d'un FEC ou d'une liasse CERFA, soldes intermédiaires de gestion, retraitements crédit-bail et ratios bancaires.",
+    prix: 'À partir de 49 €/mois',
+    url: 'https://finanalyse.yitte.net',
+    statut: 'en_ligne',
+    teteDeGondole: true,
+  },
+  {
+    id: 'finproject',
+    nom: 'FinProject by Yitte',
+    cible: 'Développeurs de projets EnR, financeurs',
+    douleur: "Modéliser un projet solaire ou éolien sur 25 ans et le présenter en due diligence : service de la dette, DSCR, LLCR, TRI projet et TRI fonds propres.",
+    prix: '499 € par projet',
+    url: 'https://finproject.yitte.net',
+    statut: 'en_ligne',
+    teteDeGondole: true,
+  },
+  {
+    id: 'audit',
+    nom: 'Audit by Yitte',
+    cible: 'Directions d\'audit interne et de contrôle',
+    douleur: "Piloter des missions de bout en bout : constats, cotation du risque, plans d'action et suivi des recommandations, sans repartir d'un classeur à chaque mission.",
+    prix: 'À partir de 79 €/mois',
+    url: 'https://audit.yitte.net',
+    statut: 'en_ligne',
+    teteDeGondole: true,
+  },
+  {
     id: 'property',
     nom: 'Property by Yitte',
     cible: 'Diaspora et propriétaires bailleurs',
@@ -130,9 +160,35 @@ const Carte = ({ produit }) => {
   return (
     <div
       className="card"
-      style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', height: '100%' }}
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.9rem', 
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        border: produit.teteDeGondole ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+        boxShadow: produit.teteDeGondole ? '0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1)' : 'var(--shadow-sm)'
+      }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+      {produit.teteDeGondole && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          backgroundColor: 'var(--primary)',
+          color: 'white',
+          padding: '0.25rem 1rem',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          borderBottomLeftRadius: 'var(--radius-md)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>
+          En vedette
+        </div>
+      )}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginTop: produit.teteDeGondole ? '1rem' : '0' }}>
         <h3 style={{ fontSize: '1.2rem', marginBottom: 0 }}>{produit.nom}</h3>
         {!enLigne && (
           <span
