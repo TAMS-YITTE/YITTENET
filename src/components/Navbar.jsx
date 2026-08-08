@@ -94,8 +94,9 @@ const Navbar = () => {
         <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           <Link to="/jobs" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Missions</Link>
           <Link to="/freelancers" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Prestataires</Link>
-          <Link to="/solutions" style={{ color: 'var(--text-main)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>Solutions</Link>
-          <Link to="/marketplace" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Boutique</Link>
+          <div style={{ width: '2px', height: '1.5rem', backgroundColor: 'var(--border-color)', margin: '0 0.5rem' }}></div>
+          <Link to="/solutions" style={{ color: 'var(--text-main)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none', marginLeft: '0.5rem' }}>Solutions</Link>
+          <Link to="/marketplace" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Outils & Templates</Link>
           
           {user && (
             <Link to="/messages" style={{ color: 'var(--text-main)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Messagerie</Link>
