@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ShoppingBag, User } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
@@ -47,7 +48,11 @@ const Marketplace = () => {
   ];
 
   return (
-    <div className="container" style={{ padding: '4rem 0' }}>
+    <div className="container" style={{ padding: '2rem' }}>
+      <SEO 
+        title="Boutique de Produits Digitaux — YITTENET" 
+        description="Achetez des templates, plugins, scripts et formations créés par les meilleurs experts de la communauté YITTENET."
+      />
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Boutique YITTE</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>

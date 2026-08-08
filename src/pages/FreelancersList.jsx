@@ -4,6 +4,7 @@ import { ShieldCheck, Star, User, Crown, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import SEO from '../components/SEO';
 
 const FreelancersList = () => {
   const { user } = useAuth();
@@ -101,7 +102,12 @@ const FreelancersList = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '4rem 0' }}>
+    <div className="container" style={{ padding: '2rem' }}>
+      <SEO 
+        title="Annuaire des Freelances — YITTENET" 
+        description="Parcourez notre annuaire de freelances experts en Web3, IA et No-Code. Profils vérifiés, avis clients et paiements sécurisés."
+      />
+      
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ marginBottom: '1rem' }}>Nos Talents Certifiés</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>

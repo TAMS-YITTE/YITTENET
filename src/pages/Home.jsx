@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, ChevronRight, Lock, FileCheck, CreditCard, Sparkles, Hexagon, Code2 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const domains = [
   {
@@ -29,6 +30,10 @@ const domains = [
 const Home = () => {
   return (
     <div>
+      <SEO 
+        title="YITTENET — La Marketplace d'Experts Tech" 
+        description="Trouvez les meilleurs freelances en Web3, IA Générative et No-Code. Sécurisez vos missions avec paiement sous séquestre."
+      />
       {/* Hero Section */}
       <section style={{ padding: '6rem 0', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{

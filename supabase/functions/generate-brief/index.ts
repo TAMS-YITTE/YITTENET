@@ -1,9 +1,9 @@
-// Génère un brouillon de cahier des charges via DeepSeek, CÔTÉ SERVEUR.
+// Génère un brouillon de cahier des charges via Gemini, CÔTÉ SERVEUR.
 // Raison d'être : la clé API ne doit jamais être exposée dans le bundle client.
-// Auparavant le front appelait DeepSeek avec VITE_AI_API_KEY (bundlée = publique).
+// Auparavant le front appelait l'IA avec VITE_AI_API_KEY (bundlée = publique).
 //
 // Deploy: supabase functions deploy generate-brief
-// Secrets requis: DEEPSEEK_API_KEY
+// Secrets requis: GEMINI_API_KEY
 // (SUPABASE_URL / SUPABASE_ANON_KEY injectés automatiquement.)
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     }
 
     // Réservé aux utilisateurs authentifiés : évite qu'un tiers ne consomme
-    // la clé DeepSeek via l'endpoint public.
+    // la clé Gemini via l'endpoint public.
     const authClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -115,33 +115,35 @@ Deno.serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get('DEEPSEEK_API_KEY');
+    const apiKey = Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'AI not configured' }), {
+      return new Response(JSON.stringify({ error: 'AI not configured (GEMINI_API_KEY manquant)' }), {
         status: 503,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const aiResponse = await fetch('https://api.deepseek.com/chat/completions', {
+    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: clientInput },
-        ],
-        temperature: 0.7,
+        systemInstruction: {
+          parts: [{ text: SYSTEM_PROMPT }]
+        },
+        contents: [{
+          parts: [{ text: clientInput }]
+        }],
+        generationConfig: {
+          temperature: 0.7
+        }
       }),
     });
 
     if (!aiResponse.ok) {
       const detail = await aiResponse.text();
-      console.error('DeepSeek error:', aiResponse.status, detail);
+      console.error('Gemini error:', aiResponse.status, detail);
       return new Response(JSON.stringify({ error: "Erreur lors de l'appel au moteur IA" }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -149,7 +151,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await aiResponse.json();
-    const text = data.choices?.[0]?.message?.content ?? '';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
     // On renvoie le texte brut ; le parsing (extraction du bloc JSON) reste
     // côté client dans src/lib/ai.js pour ne rien changer au reste du flux.

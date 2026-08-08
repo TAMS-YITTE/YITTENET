@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogOut, LayoutDashboard, Crown, Bell } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Crown, Bell, Layers } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -94,6 +94,9 @@ const Navbar = () => {
           <Link to="/jobs" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Missions</Link>
           <Link to="/freelancers" style={{ color: 'var(--text-muted)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Prestataires</Link>
           <Link to="/marketplace" style={{ color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>Boutique</Link>
+          <Link to="/logiciels" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary)', fontWeight: 600, transition: 'color 0.2s', textDecoration: 'none' }}>
+            <Layers size={16} /> Nos Logiciels
+          </Link>
           {user && (
             <Link to="/messages" style={{ color: 'var(--text-main)', fontWeight: 500, transition: 'color 0.2s', textDecoration: 'none' }}>Messagerie</Link>
           )}

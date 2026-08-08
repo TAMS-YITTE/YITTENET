@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .header { background: #3b82f6; padding: 24px; text-align: center; color: white; font-size: 24px; font-weight: bold; }
+    .content { padding: 32px; color: #374151; line-height: 1.6; }
+    .button { display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500; margin-top: 24px; }
+    .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 14px; background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">YITTENET</div>
+    <div class="content">
+      <h2 style="margin-top: 0;">Lien magique de connexion</h2>
+      <p>Vous avez demandé à vous connecter à Yittenet via un lien magique. Cliquez sur le bouton ci-dessous pour accéder directement à votre compte sans mot de passe :</p>
+      <div style="text-align: center;">
+        <a href="{{ .ConfirmationURL }}" class="button" style="color: #ffffff;">Me connecter automatiquement</a>
+      </div>
+      <p style="margin-top: 32px; font-size: 14px; color: #6b7280;">Ce lien expirera dans quelques minutes. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+    </div>
+    <div class="footer">
+      &copy; 2026 YITTENET. Tous droits réservés.
+    </div>
+  </div>
+</body>
+</html>

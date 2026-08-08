@@ -6,7 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,9 +48,9 @@ const Dashboard = () => {
     if (stripeOnboarding === 'success' && !stripeLoading) {
       setStripeLoading(true);
       supabase.functions.invoke('refresh-connect-status')
-        .then(() => {
+        .then(async () => {
           setSearchParams({});
-          window.location.reload();
+          if (refreshProfile) await refreshProfile();
         })
         .catch(err => console.error(err))
         .finally(() => setStripeLoading(false));
@@ -168,7 +168,7 @@ const Dashboard = () => {
         
       if (error) throw error;
       setIsEditingProfile(false);
-      // In a real app we would update the AuthContext profile here too
+      if (refreshProfile) await refreshProfile();
       addToast('Profil mis à jour avec succès !', 'success');
     } catch (err) {
       addToast("Erreur lors de la mise à jour : " + err.message, "error");
@@ -308,7 +308,7 @@ const Dashboard = () => {
         </div>
       )}
       {escrowError && (
-        <div style={{ backgroundColor: 'rgba(233, 64, 87, 0.1)', border: '1px solid rgba(233, 64, 87, 0.2)', color: 'var(--domain-genai-color)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+        <div style={{ backgroundColor: 'rgba(233, 64, 87, 0.1)', border: '1px solid rgba(233, 64, 87, 0.2)', color: 'var(--domain-genai)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
           {escrowError}
         </div>
       )}
@@ -331,7 +331,7 @@ const Dashboard = () => {
                   <CheckCircle2 size={14} /> Actif
                 </span>
               ) : (
-                <span className="badge" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: 'var(--domain-genai-color)' }}>
+                <span className="badge" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: 'var(--domain-genai)' }}>
                   <AlertCircle size={14} /> Configuration requise
                 </span>
               )}
@@ -529,7 +529,7 @@ const Dashboard = () => {
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <h4 style={{ fontSize: '1rem', margin: 0, color: 'var(--text-main)' }}>Devis reçus ({job.proposals.length})</h4>
                 {job.proposals.map(prop => (
-                  <div key={prop.id} style={{ backgroundColor: 'var(--bg-main)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <div key={prop.id} style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                       <div style={{ fontWeight: 'bold' }}>{prop.profiles?.full_name || 'Freelance Anonyme'}</div>
                       <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{prop.amount} €</div>
@@ -631,7 +631,7 @@ const Dashboard = () => {
                   <span style={{ fontWeight: 'bold', color: 'var(--status-success)' }}>Payé {purchase.digital_products?.price} €</span>
                 </div>
                 <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{purchase.digital_products?.title}</h3>
-                <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
                   <a href={purchase.digital_products?.file_url} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                     <FileDown size={16} /> Accéder au Livrable
                   </a>
@@ -659,7 +659,7 @@ const Dashboard = () => {
                     <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{product.price} €</span>
                   </div>
                   <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{product.title}</h3>
-                  <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                  <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
                     <Link to={`/product/${product.id}`} className="btn btn-outline" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                       <ShoppingBag size={16} /> Voir la fiche publique
                     </Link>
